@@ -10,8 +10,7 @@
     "build": "tsc -p tsconfig.build.json",
     "tslint": "tslint --project tsconfig.json --config tslint.json --type-check --force",
     "commitlint": "validate-commit-msg",
-    "fix": "tslint --project tsconfig.json --fix --force",
-    "test": "validate-commit-msg"
+    "fix": "tslint --project tsconfig.json --fix --force"
   },
   "repository": {
     "type": "git",
