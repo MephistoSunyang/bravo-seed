@@ -28,11 +28,13 @@
     "@nestjs/core": "^7.1.0",
     "@nestjs/platform-express": "^7.1.0",
     "lodash": "^4.17.15",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "file:packages/bravo-core/packages/typeorm"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.2.0",
     "@nestjs/schematics": "^7.0.0",
+    "@types/lodash": "^4.14.153",
     "@types/node": "^14.0.5",
     "husky": "^4.2.5",
     "nodemon": "^2.0.4",
