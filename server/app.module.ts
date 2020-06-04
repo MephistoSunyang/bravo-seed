@@ -1,5 +1,11 @@
-import { CoreModule, DataBaseModule } from '@bravo/core';
-import { Module } from '@nestjs/common';
+import {
+  CoreModule,
+  DataBaseModule,
+  GetCurrentUserMiddleware,
+  KeepHeaderMiddleware,
+  SetHostMiddleware,
+} from '@bravo/core';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { BusinessModule } from './business';
 import { DATABASE_CONFIG } from './configs';
 import { FrameworkModule } from './framework';
@@ -16,4 +22,9 @@ const modules = [
 @Module({
   imports: [...modules],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  public configure(consumer: MiddlewareConsumer) {
+    const middlewares = [SetHostMiddleware, GetCurrentUserMiddleware, KeepHeaderMiddleware];
+    consumer.apply(...middlewares).forRoutes('*');
+  }
+}
