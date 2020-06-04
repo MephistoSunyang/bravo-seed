@@ -4,10 +4,10 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "start": "node dist/main.js",
+    "start": "node dist/app.js",
     "compile": "npm run clean && npm run build",
     "clean": "rimraf dist",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.json",
     "tslint": "tslint --project tsconfig.json --config tslint.json --type-check --force",
     "commitlint": "validate-commit-msg",
     "fix": "tslint --project tsconfig.json --fix --force"
@@ -27,6 +27,7 @@
     "@nestjs/common": "^7.1.0",
     "@nestjs/core": "^7.1.0",
     "@nestjs/platform-express": "^7.1.0",
+    "dotenv": "^8.2.0",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13",
     "typeorm": "file:packages/bravo-core/packages/typeorm"

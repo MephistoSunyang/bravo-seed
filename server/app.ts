@@ -1,6 +1,9 @@
 // tslint:disable-next-line: no-import-side-effect
 import 'reflect-metadata';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
