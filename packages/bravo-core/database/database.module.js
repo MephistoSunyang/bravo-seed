@@ -37,7 +37,7 @@ let DataBaseModule = (() => {
         }
         static forRoot(options) {
             this.synchronize = options.synchronize || false;
-            const modules = [typeorm_1.TypeOrmModule.forRoot(options)];
+            const modules = [typeorm_1.TypeOrmModule.forRoot(lodash_1.default.extend(options, { synchronize: false }))];
             return {
                 module: DataBaseModule_1,
                 imports: [...modules],
