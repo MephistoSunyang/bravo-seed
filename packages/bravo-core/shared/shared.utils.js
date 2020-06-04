@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createResult = exports.isProduction = exports.isQuality = exports.isDevelopment = exports.isLocal = void 0;
+exports.createResult = exports.getRootPath = exports.getPath = exports.isProduction = exports.isQuality = exports.isDevelopment = exports.isLocal = void 0;
 const common_1 = require("@nestjs/common");
+const path_1 = __importDefault(require("path"));
 const exception_1 = require("../exception");
 const enums_1 = require("./enums");
 exports.isLocal = () => process.env.ENVIRONMENT &&
@@ -12,6 +16,12 @@ exports.isQuality = () => process.env.ENVIRONMENT &&
     process.env.ENVIRONMENT.toUpperCase() === enums_1.ENVIRONMENT_ENUM.QUALITY.toUpperCase();
 exports.isProduction = () => process.env.ENVIRONMENT &&
     process.env.ENVIRONMENT.toUpperCase() === enums_1.ENVIRONMENT_ENUM.PRODUCTION.toUpperCase();
+exports.getPath = (...paths) => {
+    return path_1.default.join(__dirname, ...paths);
+};
+exports.getRootPath = (...paths) => {
+    return path_1.default.join(process.cwd(), ...paths);
+};
 function createResult(contentOrError = {}, code = enums_1.HTTP_STATUS_CODE_ENUM.OK) {
     let content = {};
     let message = '';
