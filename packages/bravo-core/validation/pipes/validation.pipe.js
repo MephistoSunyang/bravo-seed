@@ -31,7 +31,10 @@ let ValidationPipe = (() => {
                 if (!metatype || !this.toValidate(metatype)) {
                     return value;
                 }
-                const json = class_transformer_1.plainToClass(metatype, value);
+                const json = class_transformer_1.plainToClass(metatype, value, {
+                    strategy: 'excludeAll',
+                    enableCircularCheck: true,
+                });
                 const errors = yield class_validator_1.validate(json);
                 if (errors.length > 0) {
                     logger_1.Logger.error(errors.toString(), 'ValidatorModule ValidatorPipe');
