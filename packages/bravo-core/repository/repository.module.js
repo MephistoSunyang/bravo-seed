@@ -18,11 +18,12 @@ let RepositoryModule = (() => {
         static forFeature(entities) {
             const modules = [typeorm_1.TypeOrmModule.forFeature([entities_1.AuditLogEntity, ...entities])];
             const services = [services_1.AuditLogService, ...repository_utils_1.getRepositoryServiceProviders(entities)];
+            const providers = [...services];
             return {
                 module: RepositoryModule_1,
                 imports: [...modules],
-                providers: [...services],
-                exports: [...services],
+                providers,
+                exports: [...providers],
             };
         }
     };

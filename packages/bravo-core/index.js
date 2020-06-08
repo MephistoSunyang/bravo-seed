@@ -17,5 +17,5 @@ __exportStar(require("./logger"), exports);
 __exportStar(require("./middleware"), exports);
 __exportStar(require("./repository"), exports);
 __exportStar(require("./shared"), exports);
-__exportStar(require("./validation"), exports);
+__exportStar(require("./validator"), exports);
 __exportStar(require("./core.module"), exports);

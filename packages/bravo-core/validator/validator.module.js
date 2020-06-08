@@ -6,19 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValidationModule = void 0;
+exports.ValidatorModule = void 0;
 const common_1 = require("@nestjs/common");
 const pipes_1 = require("./pipes");
-const pipes = [pipes_1.ValidationPipe];
-const services = [...pipes];
-let ValidationModule = (() => {
-    let ValidationModule = class ValidationModule {
+const pipes = [pipes_1.ValidatorPipe];
+const providers = [...pipes];
+let ValidatorModule = (() => {
+    let ValidatorModule = class ValidatorModule {
     };
-    ValidationModule = __decorate([
+    ValidatorModule = __decorate([
         common_1.Module({
-            providers: [...services],
+            providers,
         })
-    ], ValidationModule);
-    return ValidationModule;
+    ], ValidatorModule);
+    return ValidatorModule;
 })();
-exports.ValidationModule = ValidationModule;
+exports.ValidatorModule = ValidatorModule;

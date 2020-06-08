@@ -10,13 +10,13 @@ exports.InterceptorModule = void 0;
 const common_1 = require("@nestjs/common");
 const interceptors_1 = require("./interceptors");
 const interceptors = [interceptors_1.ExceptionLogInterceptor, interceptors_1.ResultInterceptor];
-const services = [...interceptors];
+const providers = [...interceptors];
 let InterceptorModule = (() => {
     let InterceptorModule = class InterceptorModule {
     };
     InterceptorModule = __decorate([
         common_1.Module({
-            providers: [...services],
+            providers,
         })
     ], InterceptorModule);
     return InterceptorModule;
