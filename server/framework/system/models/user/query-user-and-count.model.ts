@@ -1,0 +1,8 @@
+import { IntersectionType } from '@nestjs/swagger';
+import { BaseQueryAndCountModel } from '../../base-query-and-count.model';
+import { QueryUserModel } from './query-user.model';
+
+export class QueryUserAndCountModel extends IntersectionType(
+  QueryUserModel,
+  BaseQueryAndCountModel,
+) {}

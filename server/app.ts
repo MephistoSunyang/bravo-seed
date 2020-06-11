@@ -27,6 +27,7 @@ import {
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 
 const bootstrap = async () => {
@@ -73,13 +74,17 @@ const bootstrap = async () => {
       app.select(InterceptorModule).get(ExceptionLogInterceptor),
     );
 
-    const options = new DocumentBuilder()
-      .setTitle('The bravo framework APIs documents')
-      .setDescription('The bravo framework APIs description')
-      .setVersion('1.0')
-      .build();
-    const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('api/v1', app, document);
+    if (isLocal()) {
+      const options = new DocumentBuilder()
+        .setTitle('The bravo framework APIs documents')
+        .setDescription('The bravo framework APIs description')
+        .setVersion('1.0')
+        .build();
+      const document = SwaggerModule.createDocument(app, options);
+      SwaggerModule.setup('api/v1', app, document, { swaggerOptions: { docExpansion: 'none' } });
+    }
+
+    useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
     await app.listen(port);
   } catch (error) {
