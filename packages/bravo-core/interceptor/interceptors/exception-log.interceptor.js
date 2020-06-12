@@ -30,7 +30,7 @@ let ExceptionLogInterceptor = (() => {
                         message += `\nbody: ${JSON.stringify(request.body)}`;
                     }
                     logger_1.Logger.log(message, 'InterceptorModule ExceptionLogInterceptor');
-                    logger_1.Logger.error(error.message, 'InterceptorModule ExceptionLogInterceptor', error.stack);
+                    logger_1.Logger.error(error.message, 'InterceptorModule ExceptionLogInterceptor Error', error.stack);
                 }
                 return rxjs_1.throwError(error);
             }));

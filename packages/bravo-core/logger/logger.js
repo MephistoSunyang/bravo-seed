@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 const common_1 = require("@nestjs/common");
+const shared_1 = require("../shared");
 const logger_utils_1 = require("./logger.utils");
 class Logger extends common_1.Logger {
     static verbose(message, context = 'Nest Application Verbose') {
@@ -19,9 +20,9 @@ class Logger extends common_1.Logger {
         super.warn(message, context);
     }
     static error(message, context = 'Nest Application Error', trace = '') {
-        const error = typeof message === 'object' ? JSON.stringify(message) : message;
-        logger_utils_1.logger(`[${context}]`).error(error, trace);
-        super.error(message, trace, context);
+        const errorMessage = message instanceof Error ? shared_1.getErrorMessage(message) : message;
+        logger_utils_1.logger(`[${context}]`).error(errorMessage, trace);
+        super.error(errorMessage, trace, context);
     }
 }
 exports.Logger = Logger;

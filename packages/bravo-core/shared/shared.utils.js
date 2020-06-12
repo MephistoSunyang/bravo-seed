@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createResult = exports.getRootPath = exports.getPath = exports.isProduction = exports.isQuality = exports.isDevelopment = exports.isLocal = void 0;
+exports.getErrorMessage = exports.createResult = exports.getRootPath = exports.getPath = exports.isProduction = exports.isQuality = exports.isDevelopment = exports.isLocal = void 0;
 const common_1 = require("@nestjs/common");
 const path_1 = __importDefault(require("path"));
 const exception_1 = require("../exception");
@@ -47,3 +47,7 @@ function createResult(contentOrError = {}, code = enums_1.HTTP_STATUS_CODE_ENUM.
     return result;
 }
 exports.createResult = createResult;
+function getErrorMessage(error) {
+    return `${error.name}\n${error.message}\n${error.stack}`;
+}
+exports.getErrorMessage = getErrorMessage;

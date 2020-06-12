@@ -10,3 +10,4 @@ export declare function createResult(error?: Error | HttpException): IResult;
 export declare function createResult(error?: Error | HttpException, code?: number): IResult;
 export declare function createResult(content?: any): IResult;
 export declare function createResult(content?: any, code?: number): IResult;
+export declare function getErrorMessage(error: Error): string;

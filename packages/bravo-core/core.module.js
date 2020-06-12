@@ -11,8 +11,7 @@ const common_1 = require("@nestjs/common");
 const exception_1 = require("./exception");
 const interceptor_1 = require("./interceptor");
 const middleware_1 = require("./middleware");
-const validator_1 = require("./validator");
-const modules = [exception_1.ExceptionModule, interceptor_1.InterceptorModule, middleware_1.MiddlewareModule, validator_1.ValidatorModule];
+const modules = [exception_1.ExceptionModule, interceptor_1.InterceptorModule, middleware_1.MiddlewareModule];
 let CoreModule = (() => {
     let CoreModule = class CoreModule {
     };
