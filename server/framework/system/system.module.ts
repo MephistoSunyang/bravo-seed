@@ -7,6 +7,7 @@ import {
   MenuController,
   RoleController,
   RoleGroupController,
+  UserController,
 } from './controllers';
 import {
   ActionEntity,
@@ -25,6 +26,7 @@ import {
   ModelService,
   RoleGroupService,
   RoleService,
+  UserService,
 } from './services';
 
 const entities = [
@@ -44,6 +46,7 @@ const controllers = [
   MenuController,
   RoleGroupController,
   RoleController,
+  UserController,
 ];
 const services = [
   ActionService,
@@ -52,6 +55,7 @@ const services = [
   ModelService,
   RoleGroupService,
   RoleService,
+  UserService,
 ];
 const providers = [...services];
 
