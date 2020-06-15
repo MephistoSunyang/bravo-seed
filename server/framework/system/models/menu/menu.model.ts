@@ -1,17 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import {
-  IsBoolean,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Length,
-  Min,
-  Validate,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Length, Min } from 'class-validator';
 import { BaseModel } from '../../base.model';
-import { MenuExistedValidator } from '../../validators';
 
 export class MenuModel extends BaseModel {
   @ApiProperty()
@@ -31,7 +21,6 @@ export class MenuModel extends BaseModel {
   @Expose()
   @IsInt()
   @Min(0)
-  @Validate(MenuExistedValidator)
   public parentId: number;
 
   @ApiProperty({ default: 0, example: 0 })

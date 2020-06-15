@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, Length, Validate } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { BaseModel } from '../../base.model';
-import { ConfigCodeUniqueValidator } from '../../validators';
 
 export class ConfigModel extends BaseModel {
   @ApiProperty()
@@ -10,7 +9,6 @@ export class ConfigModel extends BaseModel {
   @IsString()
   @Length(0, 255)
   @IsNotEmpty()
-  @Validate(ConfigCodeUniqueValidator)
   public code: string;
 
   @ApiProperty()

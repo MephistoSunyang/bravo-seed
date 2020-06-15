@@ -1,5 +1,4 @@
 import { OmitType } from '@nestjs/swagger';
-import { BASE_MODEL_FIELD_CONFIG } from '../../configs';
-import { MenuModel } from './menu.model';
+import { CreatedMenuModel } from './created-menu.model';
 
-export class UpdatedMenuModel extends OmitType(MenuModel, BASE_MODEL_FIELD_CONFIG) {}
+export class UpdatedMenuModel extends OmitType(CreatedMenuModel, []) {}

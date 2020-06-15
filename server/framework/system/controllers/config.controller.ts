@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODE_ENUM, ValidatorPipe } from '@bravo/core';
+import { HTTP_STATUS_CODE_ENUM } from '@bravo/core';
 import {
   Body,
   Controller,
@@ -13,6 +13,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ValidatorPipe } from '../../validator';
 import {
   ConfigAndCountModel,
   ConfigModel,

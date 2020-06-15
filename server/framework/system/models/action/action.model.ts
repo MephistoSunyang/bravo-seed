@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, Length, Validate } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { BaseModel } from '../../base.model';
 import { ACTION_METHOD_ENUM } from '../../enums';
-import { ActionCodeUniqueValidator } from '../../validators';
 
 export class ActionModel extends BaseModel {
   @ApiProperty({ type: 'string | null', example: null })
@@ -11,7 +10,6 @@ export class ActionModel extends BaseModel {
   @IsString()
   @Length(0, 255)
   @IsOptional()
-  @Validate(ActionCodeUniqueValidator)
   public code: string | null;
 
   @ApiProperty()

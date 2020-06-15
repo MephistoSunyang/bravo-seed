@@ -26,14 +26,6 @@ import {
   RoleGroupService,
   RoleService,
 } from './services';
-import {
-  ActionCodeUniqueValidator,
-  ConfigCodeUniqueValidator,
-  MenuExistedValidator,
-  RoleCodeUniqueValidator,
-  RoleGroupCodeUniqueValidator,
-  RoleGroupExistedValidator,
-} from './validators';
 
 const entities = [
   ActionEntity,
@@ -53,14 +45,6 @@ const controllers = [
   RoleGroupController,
   RoleController,
 ];
-const validators = [
-  ActionCodeUniqueValidator,
-  ConfigCodeUniqueValidator,
-  MenuExistedValidator,
-  RoleCodeUniqueValidator,
-  RoleGroupCodeUniqueValidator,
-  RoleGroupExistedValidator,
-];
 const services = [
   ActionService,
   ConfigService,
@@ -69,7 +53,7 @@ const services = [
   RoleGroupService,
   RoleService,
 ];
-const providers = [...validators, ...services];
+const providers = [...services];
 
 @Module({
   imports: [...modules],

@@ -1,5 +1,4 @@
 import { OmitType } from '@nestjs/swagger';
-import { BASE_MODEL_FIELD_CONFIG } from '../../configs';
-import { ActionModel } from './action.model';
+import { CreatedActionModel } from './created-action.model';
 
-export class UpdatedActionModel extends OmitType(ActionModel, BASE_MODEL_FIELD_CONFIG) {}
+export class UpdatedActionModel extends OmitType(CreatedActionModel, []) {}

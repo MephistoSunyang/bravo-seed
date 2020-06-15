@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, Length, Validate } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { BaseModel } from '../../base.model';
-import { RoleGroupCodeUniqueValidator } from '../../validators';
 
 export class RoleGroupModel extends BaseModel {
   @ApiProperty({ type: 'string | null', example: null })
@@ -10,7 +9,6 @@ export class RoleGroupModel extends BaseModel {
   @IsString()
   @Length(0, 255)
   @IsNotEmpty()
-  @Validate(RoleGroupCodeUniqueValidator)
   public code: string;
 
   @ApiProperty()
