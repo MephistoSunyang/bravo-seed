@@ -86,7 +86,7 @@
     "no-return-await": true,
     "no-shadowed-variable": false,
     "no-sparse-arrays": true,
-    "no-string-literal": true,
+    "no-string-literal": false,
     "no-string-throw": true,
     "no-submodule-imports": false,
     "no-switch-case-fall-through": true,
