@@ -1,1 +1,1 @@
-export {};
+export * from './user-action.guard';

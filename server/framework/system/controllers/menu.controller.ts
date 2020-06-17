@@ -10,10 +10,12 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { UserActionGuard } from '../guards';
 import {
   CreatedMenuModel,
   MenuAndCountModel,
@@ -27,6 +29,7 @@ import { MenuService } from '../services';
 @ApiTags('system.menus')
 @Controller('api/v1/system/menus')
 @UsePipes(ValidatorPipe)
+@UseGuards(UserActionGuard)
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 

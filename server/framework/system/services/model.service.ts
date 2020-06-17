@@ -17,7 +17,7 @@ export class ModelService {
   public mapper<IModel>(
     model: ClassType<IModel>,
     entityOrEntities: any[] | any,
-    options?: ClassTransformOptions,
+    options: ClassTransformOptions = { strategy: 'excludeAll' },
   ): IModel[] | IModel {
     const modelOrModels = plainToClass(model, entityOrEntities, options);
     return modelOrModels;

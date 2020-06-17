@@ -10,10 +10,12 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { UserActionGuard } from '../guards';
 import {
   ConfigAndCountModel,
   ConfigModel,
@@ -27,6 +29,7 @@ import { ConfigService } from '../services';
 @ApiTags('system.configs')
 @Controller('api/v1/system/configs')
 @UsePipes(ValidatorPipe)
+@UseGuards(UserActionGuard)
 export class ConfigController {
   constructor(private readonly configService: ConfigService) {}
 

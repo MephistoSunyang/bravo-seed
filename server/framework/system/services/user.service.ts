@@ -133,6 +133,18 @@ export class UserService {
     return user;
   }
 
+  public async getLocalUserByUsernameAndPassword(
+    username: string,
+    password: string,
+  ): Promise<UserModel | null> {
+    const encodePassword = this.cryptoUserService.encodePassword(password);
+    const user = await this.userRepositoryService.findOne({ username, password: encodePassword });
+    if (!user) {
+      return null;
+    }
+    return this.mapper(user);
+  }
+
   public async getLocalUsers() {
     const users = await this.userRepositoryService
       .createQueryBuilder('users')

@@ -10,10 +10,12 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { UserActionGuard } from '../guards';
 import {
   CreatedRoleModel,
   QueryRoleAndCountModel,
@@ -27,6 +29,7 @@ import { RoleService } from '../services';
 @ApiTags('system.roles')
 @Controller('api/v1/system/roles')
 @UsePipes(ValidatorPipe)
+@UseGuards(UserActionGuard)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 

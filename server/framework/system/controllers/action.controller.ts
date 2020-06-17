@@ -10,10 +10,12 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { UserActionGuard } from '../guards';
 import {
   ActionAndCountModel,
   ActionModel,
@@ -27,6 +29,7 @@ import { ActionService } from '../services';
 @ApiTags('system.actions')
 @Controller('api/v1/system/actions')
 @UsePipes(ValidatorPipe)
+@UseGuards(UserActionGuard)
 export class ActionController {
   constructor(private readonly actionService: ActionService) {}
 

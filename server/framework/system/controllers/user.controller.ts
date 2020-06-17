@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODE_ENUM } from '@bravo/core';
+import { HTTP_STATUS_CODE_ENUM, User } from '@bravo/core';
 import {
   Body,
   Controller,
@@ -10,10 +10,12 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { UserActionGuard } from '../guards';
 import {
   CreatedUserModel,
   QueryUserAndCountModel,
@@ -27,6 +29,7 @@ import { UserService } from '../services';
 @ApiTags('system.users')
 @Controller('api/v1/system/users')
 @UsePipes(ValidatorPipe)
+@UseGuards(UserActionGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -51,6 +54,15 @@ export class UserController {
   public async getUsers(@Query() queries: QueryUserModel): Promise<UserModel[]> {
     const userModels = await this.userService._getUsers(queries);
     return userModels;
+  }
+
+  @ApiResponse({
+    status: HTTP_STATUS_CODE_ENUM.OK,
+    type: UserModel,
+  })
+  @Get('current')
+  public async getCurrentUser(@User() user: UserModel | null): Promise<UserModel | null> {
+    return user;
   }
 
   @ApiResponse({

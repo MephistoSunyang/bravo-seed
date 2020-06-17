@@ -27,7 +27,7 @@ export class UserActionGuard implements CanActivate {
     if (!request.user) {
       throw new UnauthorizedException(`Not found user by UserActionGuard!`);
     }
-    const userId = request.user.id;
+    const userId = request.user['id'];
     const method = request.method as any;
     const path = request.route.path;
     const validation = await this.userService.userActionValidator(userId, method, path);
