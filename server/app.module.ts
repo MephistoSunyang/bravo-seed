@@ -7,8 +7,8 @@ import {
 } from '@bravo/core';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { BusinessModule } from './business';
-import { DATABASE_CONFIG } from './configs';
-import { FrameworkModule } from './framework';
+import { DATABASE_CONFIG, PASSPORT_LOCAL_CONFIG } from './configs';
+import { FrameworkModule, PassportLocalModule } from './framework';
 import { PluginModule } from './plugin';
 
 const modules = [
@@ -17,6 +17,7 @@ const modules = [
   PluginModule,
   BusinessModule,
   DataBaseModule.forRoot(DATABASE_CONFIG),
+  PassportLocalModule.forRoot(PASSPORT_LOCAL_CONFIG),
 ];
 
 @Module({
