@@ -26,7 +26,10 @@ export class ValidatorPipe implements PipeTransform {
     return message;
   }
 
-  public async transform(value: any, { metatype }: ArgumentMetadata) {
+  public async transform(value: any, { type, metatype }: ArgumentMetadata) {
+    if (type !== 'body' && type !== 'query') {
+      return value;
+    }
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
