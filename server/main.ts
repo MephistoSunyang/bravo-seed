@@ -28,6 +28,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
+import passport from 'passport';
 import { AppModule } from './app.module';
 
 const bootstrap = async () => {
@@ -59,6 +60,8 @@ const bootstrap = async () => {
     app.use(rateLimit({ max: rateLimitMax }));
     app.use(history({ exclusions: historyExclusions }));
     app.use(httpContext.middleware);
+    app.use(passport.initialize());
+    app.use(passport.session());
 
     app.useStaticAssets(getPath('client'));
     app.useStaticAssets(getRootPath('statics'));
