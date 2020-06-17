@@ -6,12 +6,23 @@ export class CryptoUserService {
   public passwordSecret = String(process.env.SYSTEM_USER_PASSWORD_SECRET);
 
   public encodePassword(password: string): string {
-    const cipher = crypto.AES.encrypt(password, this.passwordSecret);
-    return cipher.toString();
+    const keyBuffer = crypto.enc.Utf8.parse(this.passwordSecret);
+    const cipher = crypto.AES.encrypt(password, keyBuffer, {
+      mode: crypto.mode.ECB,
+      padding: crypto.pad.Pkcs7,
+      iv: '',
+    });
+    return crypto.enc.Base64.stringify(cipher.ciphertext).toString();
   }
 
   public decodePassword(encodedPassword: string): string {
-    const decipher = crypto.AES.decrypt(encodedPassword, this.passwordSecret);
-    return decipher.toString(crypto.enc.Utf8);
+    const keyBuffer = crypto.enc.Utf8.parse(this.passwordSecret);
+    const decipher = crypto.AES.decrypt(encodedPassword, keyBuffer, {
+      mode: crypto.mode.ECB,
+      padding: crypto.pad.Pkcs7,
+      iv: '',
+    });
+    const resultDecipher = crypto.enc.Utf8.stringify(decipher);
+    return JSON.parse(resultDecipher);
   }
 }
