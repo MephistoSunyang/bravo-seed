@@ -1,6 +1,7 @@
 import { HTTP_STATUS_CODE_ENUM, IRequest } from '@bravo/core';
 import {
   Controller,
+  HttpCode,
   Post,
   Request,
   UnauthorizedException,
@@ -26,6 +27,7 @@ export class PassportLocalController {
     type: UserModel,
   })
   @UseGuards(AuthGuard('local'))
+  @HttpCode(HTTP_STATUS_CODE_ENUM.OK)
   @Post('login')
   public async login(@Request() request: IRequest): Promise<UserModel> {
     const { user } = request;
