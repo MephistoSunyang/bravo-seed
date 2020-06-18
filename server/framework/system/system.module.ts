@@ -4,6 +4,7 @@ import { CryptoModule } from '../crypto';
 import {
   ActionController,
   ConfigController,
+  LogController,
   MenuController,
   RoleController,
   RoleGroupController,
@@ -27,6 +28,7 @@ import {
   RoleGroupService,
   RoleService,
   UserService,
+  LogService,
 } from './services';
 
 const entities = [
@@ -43,6 +45,7 @@ const modules = [RepositoryModule.forFeature(entities), CryptoModule];
 const controllers = [
   ActionController,
   ConfigController,
+  LogController,
   MenuController,
   RoleGroupController,
   RoleController,
@@ -51,6 +54,7 @@ const controllers = [
 const services = [
   ActionService,
   ConfigService,
+  LogService,
   MenuService,
   ModelService,
   RoleGroupService,
