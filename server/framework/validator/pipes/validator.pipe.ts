@@ -3,6 +3,7 @@ import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from
 import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import _ from 'lodash';
+import { getBravoFrameworkMetadataArgsStorage } from '../../metadata-storage';
 
 @Injectable()
 export class ValidatorPipe implements PipeTransform {
@@ -26,23 +27,24 @@ export class ValidatorPipe implements PipeTransform {
     return message;
   }
 
-  public async transform(value: any, { type, metatype }: ArgumentMetadata) {
-    if (type !== 'body' && type !== 'query') {
-      return value;
-    }
+  public async transform(value: any, { metatype }: ArgumentMetadata) {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
-    const json = plainToClass(metatype, value, {
+    const groups = getBravoFrameworkMetadataArgsStorage().validator.getValidatorGroupsByTarget(
+      metatype,
+    );
+    const data = plainToClass(metatype, value, {
       strategy: 'excludeAll',
       enableCircularCheck: true,
-      enableImplicitConversion: true,
     });
-    const errors = await validate(json);
+    const errors = await validate(data, {
+      groups,
+    });
     if (errors.length > 0) {
       Logger.error(this.getErrorMessage(errors), 'ValidatorModule ValidatorPipe Error');
       throw new BadRequestException('validation failed!');
     }
-    return value;
+    return data;
   }
 }

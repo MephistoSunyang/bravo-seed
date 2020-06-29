@@ -5,7 +5,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { Connection } from 'typeorm';
+import { Connection, Not } from 'typeorm';
 
 @Injectable()
 @ValidatorConstraint({ name: 'unique', async: true })
@@ -23,9 +23,16 @@ export class UniqueValidatorService implements ValidatorConstraintInterface {
     if (!entityClass) {
       throw new BadRequestException('Not found entityClass by UniqueValidatorService!');
     }
-    const { property } = validationArguments;
-    const entity = await this.connection.getRepository(entityClass).findOne({ [property]: value });
-    return !entity;
+    const { object: data, property } = validationArguments;
+    const conditions = {
+      [property]: value,
+    };
+    if (data['id']) {
+      conditions.id = Not(data['id']);
+    }
+    const entity: any = await this.connection.getRepository(entityClass).findOne(conditions);
+    const unique = entity ? false : true;
+    return unique;
   }
 
   public defaultMessage(validationArguments: ValidationArguments): string {
