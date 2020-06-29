@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { PassportModule } from './passport';
 import { SystemModule } from './system';
+import { TransformerModule } from './transformer';
 import { ValidatorModule } from './validator';
 
-const modules = [SystemModule, ValidatorModule];
+const modules = [PassportModule, SystemModule, TransformerModule, ValidatorModule];
 
 @Module({
   imports: [...modules],
