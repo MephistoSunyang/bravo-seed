@@ -12,7 +12,7 @@ import {
   PASSPORT_JWT_STRATEGY_CONFIG,
   PASSPORT_LOCAL_STRATEGY_CONFIG,
 } from './configs';
-import { FrameworkModule, PassportLocalModule } from './framework';
+import { FrameworkModule, PassportLocalModule, SetJwtUserIdMiddleware } from './framework';
 import { PluginModule } from './plugin';
 
 const modules = [
@@ -29,7 +29,12 @@ const modules = [
 })
 export class AppModule implements NestModule {
   public configure(consumer: MiddlewareConsumer) {
-    const middlewares = [SetHostMiddleware, GetCurrentUserMiddleware, KeepHeaderMiddleware];
+    const middlewares = [
+      SetHostMiddleware,
+      GetCurrentUserMiddleware,
+      KeepHeaderMiddleware,
+      SetJwtUserIdMiddleware,
+    ];
     consumer.apply(...middlewares).forRoutes('*');
   }
 }
