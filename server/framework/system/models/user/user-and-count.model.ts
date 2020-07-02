@@ -1,10 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { DataAndCountModelType } from '../../../validator';
 import { UserModel } from './user.model';
 
-export class UserAndCountModel {
-  @ApiProperty({ type: () => [UserModel] })
-  public users: UserModel[];
-
-  @ApiProperty()
-  public count: number;
-}
+export class UserAndCountModel extends DataAndCountModelType(UserModel) {}

@@ -4,8 +4,10 @@ import { CryptoModule } from '../crypto';
 import {
   ActionController,
   ConfigController,
+  FeatureController,
   LogController,
   MenuController,
+  PermissionController,
   RoleController,
   RoleGroupController,
   UserController,
@@ -13,28 +15,36 @@ import {
 import {
   ActionEntity,
   ConfigEntity,
+  FeatureClaimEntity,
+  FeatureEntity,
+  MenuEntity,
+  PermissionEntity,
   RoleClaimEntity,
   RoleEntity,
   RoleGroupEntity,
   UserEntity,
   UserProviderEntity,
 } from './entities';
-import { MenuEntity } from './entities/menu.entity';
 import {
   ActionService,
   ConfigService,
+  FeatureService,
+  LogService,
   MenuService,
   ModelService,
+  PermissionService,
   RoleGroupService,
   RoleService,
   UserService,
-  LogService,
 } from './services';
 
 const entities = [
   ActionEntity,
   ConfigEntity,
+  FeatureClaimEntity,
+  FeatureEntity,
   MenuEntity,
+  PermissionEntity,
   RoleClaimEntity,
   RoleGroupEntity,
   RoleEntity,
@@ -45,8 +55,10 @@ const modules = [RepositoryModule.forFeature(entities), CryptoModule];
 const controllers = [
   ActionController,
   ConfigController,
+  FeatureController,
   LogController,
   MenuController,
+  PermissionController,
   RoleGroupController,
   RoleController,
   UserController,
@@ -54,9 +66,11 @@ const controllers = [
 const services = [
   ActionService,
   ConfigService,
+  FeatureService,
   LogService,
   MenuService,
   ModelService,
+  PermissionService,
   RoleGroupService,
   RoleService,
   UserService,

@@ -1,11 +1,11 @@
 import { getBravoFrameworkMetadataArgsStorage } from '../../metadata-storage';
 import { VALIDATOR_GROUP_ENUM } from '../enums';
 
-export const QueryValidatorModel = (): ClassDecorator => {
+export const QueryValidatorModel = (modelClass: Function): ClassDecorator => {
   return (model: Function) => {
     getBravoFrameworkMetadataArgsStorage().validator.models.push({
       target: model,
-      groups: [VALIDATOR_GROUP_ENUM.QUERY],
+      group: `${modelClass.name}${VALIDATOR_GROUP_ENUM.QUERY}`,
     });
   };
 };

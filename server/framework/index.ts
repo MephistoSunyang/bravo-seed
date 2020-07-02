@@ -1,3 +1,4 @@
+export * from './authorization';
 export * from './crypto';
 export * from './metadata-storage';
 export * from './passport';

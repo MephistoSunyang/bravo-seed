@@ -37,6 +37,9 @@ export class ActionService {
     if (queries.method) {
       where.method = queries.method;
     }
+    if (queries.path) {
+      where.path = Like(queries.path);
+    }
     if (queries.comment) {
       where.comment = Like(queries.comment);
     }
@@ -56,7 +59,7 @@ export class ActionService {
       take,
     });
     const actionModels = this.mapper(actions);
-    return { actions: actionModels, count };
+    return { data: actionModels, count };
   }
 
   public async _getActions(queries: QueryActionModel): Promise<ActionModel[]> {

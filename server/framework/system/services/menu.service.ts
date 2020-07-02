@@ -1,5 +1,6 @@
 import { InjectRepositoryService, RepositoryService } from '@bravo/core';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import _ from 'lodash';
 import { FindConditions, Like } from 'typeorm';
 import { MenuEntity } from '../entities';
 import {
@@ -24,6 +25,34 @@ export class MenuService {
   private mapper(menu: MenuEntity): MenuModel;
   private mapper(menuOrMenus: MenuEntity[] | MenuEntity): MenuModel[] | MenuModel {
     return this.modelService.mapper(MenuModel, menuOrMenus);
+  }
+
+  private getSubMenuModels(parentId: number, menuModels: MenuModel[]): MenuModel[] {
+    const subMenuModels = _.chain(menuModels)
+      .filter({ parentId })
+      .forEach((menuModel) => {
+        menuModel.subMenus = this.getSubMenuModels(menuModel.id, menuModels);
+      })
+      .sortBy('sort')
+      .value();
+    return subMenuModels;
+  }
+
+  private getTreeMenuModels(
+    menuModels: MenuModel[],
+    skip = 0,
+    take = menuModels.length,
+  ): MenuModel[] {
+    const treeMenuModels = _.chain(menuModels)
+      .filter({ parentId: 0 })
+      .sortBy('sort')
+      .slice(skip)
+      .take(take)
+      .forEach((menuModel) => {
+        menuModel.subMenus = this.getSubMenuModels(menuModel.id, menuModels);
+      })
+      .value();
+    return treeMenuModels;
   }
 
   private getWhere(queries: QueryMenuModel): FindConditions<MenuEntity> {
@@ -58,12 +87,9 @@ export class MenuService {
     const where = this.getWhere(queries);
     const [menus, count] = await this.menuRepositoryService.findAndCount({
       where,
-      order: { modifiedDate: 'DESC' },
-      skip,
-      take,
     });
-    const menuModels = this.mapper(menus);
-    return { menus: menuModels, count };
+    const menuModels = this.getTreeMenuModels(this.mapper(menus), skip, take);
+    return { data: menuModels, count };
   }
 
   public async _getMenus(queries: QueryMenuModel): Promise<MenuModel[]> {
@@ -72,7 +98,7 @@ export class MenuService {
       where,
       order: { modifiedDate: 'DESC' },
     });
-    const menuModels = this.mapper(menus);
+    const menuModels = this.getTreeMenuModels(this.mapper(menus));
     return menuModels;
   }
 

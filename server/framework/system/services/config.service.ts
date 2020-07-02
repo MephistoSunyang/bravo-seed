@@ -129,7 +129,7 @@ export class ConfigService {
       take,
     });
     const configModels = this.mapper(configs);
-    return { configs: configModels, count };
+    return { data: configModels, count };
   }
 
   public async _getConfigs(queries: QueryConfigModel): Promise<ConfigModel[]> {

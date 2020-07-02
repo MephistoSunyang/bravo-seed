@@ -14,8 +14,8 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
 import { ValidatorPipe } from '../../validator';
-import { UserActionGuard } from '../guards';
 import {
   CreatedRoleModel,
   QueryRoleAndCountModel,
@@ -29,7 +29,8 @@ import { RoleService } from '../services';
 @ApiTags('system.roles')
 @Controller('api/v1/system/roles')
 @UsePipes(ValidatorPipe)
-@UseGuards(UserActionGuard)
+@UseGuards(PermissionGuard, ActionGuard)
+@Permission('system.roles')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 

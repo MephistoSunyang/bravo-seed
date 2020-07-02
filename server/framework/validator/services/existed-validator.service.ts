@@ -37,12 +37,12 @@ export class ExistedValidatorService implements ValidatorConstraintInterface {
       throw new BadRequestException('Not found entityClass by ExistedValidatorService!');
     }
     const ids = this.getIds(value);
-    const entity = await this.connection.getRepository(entityClass).findByIds(ids);
-    return !entity;
+    const entities = await this.connection.getRepository(entityClass).findByIds(ids);
+    return ids.length === entities.length;
   }
 
   public defaultMessage(validationArguments: ValidationArguments): string {
     const { value, property } = validationArguments;
-    return `${property} ${this.getIds(value).join(',')} must be a unique`;
+    return `${property} ${this.getIds(value).join(',')} must be a existed`;
   }
 }

@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODE_ENUM, User } from '@bravo/core';
+import { HTTP_STATUS_CODE_ENUM } from '@bravo/core';
 import {
   Body,
   Controller,
@@ -7,6 +7,7 @@ import {
   HttpCode,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -14,12 +15,13 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
 import { ValidatorPipe } from '../../validator';
-import { UserActionGuard } from '../guards';
 import {
   CreatedUserModel,
   QueryUserAndCountModel,
   QueryUserModel,
+  ReplaceUserPasswordModel,
   UpdatedUserModel,
   UserAndCountModel,
   UserModel,
@@ -29,7 +31,8 @@ import { UserService } from '../services';
 @ApiTags('system.users')
 @Controller('api/v1/system/users')
 @UsePipes(ValidatorPipe)
-@UseGuards(UserActionGuard)
+@UseGuards(PermissionGuard, ActionGuard)
+@Permission('system.users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -54,15 +57,6 @@ export class UserController {
   public async getUsers(@Query() queries: QueryUserModel): Promise<UserModel[]> {
     const userModels = await this.userService._getUsers(queries);
     return userModels;
-  }
-
-  @ApiResponse({
-    status: HTTP_STATUS_CODE_ENUM.OK,
-    type: UserModel,
-  })
-  @Get('current')
-  public async getCurrentUser(@User() user: UserModel | null): Promise<UserModel | null> {
-    return user;
   }
 
   @ApiResponse({
@@ -95,6 +89,19 @@ export class UserController {
     @Body() updatedUserModel: UpdatedUserModel,
   ): Promise<UserModel> {
     const userModel = await this.userService._updateUserById(id, updatedUserModel);
+    return userModel;
+  }
+
+  @ApiResponse({
+    status: HTTP_STATUS_CODE_ENUM.OK,
+    type: ReplaceUserPasswordModel,
+  })
+  @Patch(':id/password')
+  public async replaceUserPassword(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() body: ReplaceUserPasswordModel,
+  ): Promise<UserModel> {
+    const userModel = await this.userService._replacePassword(id, body.password, body.newPassword);
     return userModel;
   }
 

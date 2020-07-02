@@ -23,8 +23,8 @@ export class MenuEntity extends BaseEntity {
   @Column('nvarchar', { nullable: true })
   public icon: string | null;
 
-  @Column('nvarchar')
-  public path: string;
+  @Column('nvarchar', { nullable: true })
+  public path: string | null;
 
   @Column('bit', { default: true })
   public visible: boolean;

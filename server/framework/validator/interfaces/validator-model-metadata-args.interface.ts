@@ -1,4 +1,4 @@
 export interface IValidatorModelMetadataArgs {
   readonly target: Function | string;
-  readonly groups: string[];
+  readonly group: string;
 }

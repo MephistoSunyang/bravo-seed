@@ -1,4 +1,7 @@
 import { OmitType } from '@nestjs/swagger';
-import { CreatedRoleModel } from './created-role.model';
+import { UpdatedValidatorModel } from '../../../validator';
+import { BASE_MODEL_FIELD_CONFIG } from '../../configs';
+import { RoleModel } from './role.model';
 
-export class UpdatedRoleModel extends OmitType(CreatedRoleModel, []) {}
+@UpdatedValidatorModel(RoleModel)
+export class UpdatedRoleModel extends OmitType(RoleModel, BASE_MODEL_FIELD_CONFIG.slice(1)) {}

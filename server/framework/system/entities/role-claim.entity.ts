@@ -9,14 +9,14 @@ export class RoleClaimEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
+  @Column('int')
+  public roleId: number;
+
   @Column('varchar')
   public type: ROLE_CLAIM_TYPE_ENUM;
 
   @Column('varchar')
   public key: string;
-
-  @Column('int')
-  public roleId: number;
 
   @JoinColumn({ name: 'roleId' })
   @ManyToOne(() => RoleEntity)

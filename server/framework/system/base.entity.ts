@@ -1,5 +1,9 @@
+import { getCurrentUserId } from '@bravo/core';
 import _ from 'lodash';
+import moment from 'moment';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   DeleteColumn,
@@ -29,4 +33,18 @@ export abstract class BaseEntity {
 
   @VersionColumn({ default: 1 })
   public version: number;
+
+  @BeforeInsert()
+  public beforeInsertListener() {
+    const userId = getCurrentUserId();
+    this.createdUserId = userId ? _.toString(userId) : null;
+    this.createdDate = moment().utc().toDate();
+  }
+
+  @BeforeUpdate()
+  public beforeUpdateListener() {
+    const userId = getCurrentUserId();
+    this.modifiedUserId = userId ? _.toString(userId) : null;
+    this.modifiedDate = moment().utc().toDate();
+  }
 }

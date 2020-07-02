@@ -57,7 +57,7 @@ export class RoleGroupService {
       take,
     });
     const roleGroupModels = this.mapper(roleGroups);
-    return { roleGroups: roleGroupModels, count };
+    return { data: roleGroupModels, count };
   }
 
   public async _getRoleGroups(queries: QueryRoleGroupModel): Promise<RoleGroupModel[]> {

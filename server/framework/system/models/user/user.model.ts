@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
+import { ExistedValidator, UniqueValidator, VALIDATOR_GROUP_ENUM } from '../../../validator';
 import { BaseModel } from '../../base.model';
+import { RoleEntity, UserEntity } from '../../entities';
+import { RoleModel } from '../role';
 
 export class UserModel extends BaseModel {
   @ApiProperty()
@@ -9,6 +12,9 @@ export class UserModel extends BaseModel {
   @IsString()
   @Length(0, 255)
   @IsNotEmpty()
+  @UniqueValidator(UserEntity, {
+    groups: [VALIDATOR_GROUP_ENUM.CREATED, VALIDATOR_GROUP_ENUM.UPDATED],
+  })
   public username: string;
 
   @ApiProperty({ type: 'string | null', example: null })
@@ -48,6 +54,15 @@ export class UserModel extends BaseModel {
   @Expose()
   @IsBoolean()
   public emailConfirmed: boolean;
+
+  @ApiProperty({ type: () => [RoleModel] })
+  @Expose()
+  @IsOptional()
+  @ExistedValidator(RoleEntity, {
+    groups: [VALIDATOR_GROUP_ENUM.CREATED, VALIDATOR_GROUP_ENUM.UPDATED],
+  })
+  @Type(() => RoleModel)
+  public roles?: RoleModel[];
 
   @ApiProperty({ type: 'string | null', example: null })
   @Expose()

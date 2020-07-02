@@ -1,10 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { DataAndCountModelType } from '../../../validator';
 import { RoleModel } from './role.model';
 
-export class RoleAndCountModel {
-  @ApiProperty({ type: () => [RoleModel] })
-  public roles: RoleModel[];
-
-  @ApiProperty()
-  public count: number;
-}
+export class RoleAndCountModel extends DataAndCountModelType(RoleModel) {}

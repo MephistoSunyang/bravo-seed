@@ -1,0 +1,5 @@
+export enum FEATURE_CLAIM_TYPE_ENUM {
+  MENU = 'MENU',
+  PERMISSION = 'PERMISSION',
+  ACTION = 'ACTION',
+}

@@ -27,15 +27,15 @@ export class ValidatorPipe implements PipeTransform {
     return message;
   }
 
-  public async transform(value: any, { metatype }: ArgumentMetadata) {
-    if (!metatype || !this.toValidate(metatype)) {
+  public async transform(value: any, { metatype, data: field }: ArgumentMetadata) {
+    if (field || !metatype || !this.toValidate(metatype)) {
       return value;
     }
     const groups = getBravoFrameworkMetadataArgsStorage().validator.getValidatorGroupsByTarget(
       metatype,
     );
     const data = plainToClass(metatype, value, {
-      strategy: 'excludeAll',
+      excludeExtraneousValues: true,
       enableCircularCheck: true,
     });
     const errors = await validate(data, {

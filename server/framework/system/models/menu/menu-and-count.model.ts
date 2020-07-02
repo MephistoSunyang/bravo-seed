@@ -1,10 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { DataAndCountModelType } from '../../../validator';
 import { MenuModel } from './menu.model';
 
-export class MenuAndCountModel {
-  @ApiProperty({ type: () => [MenuModel] })
-  public menus: MenuModel[];
-
-  @ApiProperty()
-  public count: number;
-}
+export class MenuAndCountModel extends DataAndCountModelType(MenuModel) {}

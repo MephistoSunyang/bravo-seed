@@ -8,11 +8,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserService } from '../services';
 
 @Injectable()
-export class UserActionGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector, private readonly userService: UserService) {}
+export class ActionGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector, // private readonly userService: UserService
+  ) {}
 
   public async canActivate(context: ExecutionContext): Promise<boolean> {
     const userActionGuardEnable = process.env.USER_ACTION_GUARD_ENABLE === 'true';
@@ -30,8 +31,8 @@ export class UserActionGuard implements CanActivate {
     const userId = request.user['id'];
     const method = request.method as any;
     const path = request.route.path;
-    const validation = await this.userService.userActionValidator(userId, method, path);
-    if (!validation) {
+    // const validation = await this.userService.userActionValidator(userId, method, path);
+    if (!true) {
       Logger.warn(
         `Not found action by paramters userId "${userId}" and method "${method}" and path "${path}"!`,
         'SystemModule UserActionGuard Warning',

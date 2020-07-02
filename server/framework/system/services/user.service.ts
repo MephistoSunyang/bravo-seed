@@ -1,16 +1,8 @@
-import { InjectRepositoryService, RepositoryService } from '@bravo/core';
+import { BusinessException, InjectRepositoryService, RepositoryService } from '@bravo/core';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/typeorm';
-import { Connection, FindConditions, Like } from 'typeorm';
+import { FindConditions, Like } from 'typeorm';
 import { CryptoUserService } from '../../crypto';
-import {
-  ActionEntity,
-  RoleClaimEntity,
-  RoleEntity,
-  UserEntity,
-  UserProviderEntity,
-} from '../entities';
-import { ACTION_METHOD_ENUM, ROLE_CLAIM_TYPE_ENUM, USER_PROVIDER_TYPE_ENUM } from '../enums';
+import { UserEntity } from '../entities';
 import {
   CreatedUserModel,
   QueryUserAndCountModel,
@@ -24,8 +16,6 @@ import { ModelService } from './model.service';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectConnection()
-    private readonly connection: Connection,
     @InjectRepositoryService(UserEntity)
     private readonly userRepositoryService: RepositoryService<UserEntity>,
     private readonly modelService: ModelService,
@@ -73,18 +63,20 @@ export class UserService {
     const where = this.getWhere(queries);
     const [users, count] = await this.userRepositoryService.findAndCount({
       where,
+      relations: ['roles'],
       order: { modifiedDate: 'DESC' },
       skip,
       take,
     });
     const userModels = this.mapper(users);
-    return { users: userModels, count };
+    return { data: userModels, count };
   }
 
   public async _getUsers(queries: QueryUserModel): Promise<UserModel[]> {
     const where = this.getWhere(queries);
     const users = await this.userRepositoryService.find({
       where,
+      relations: ['roles'],
       order: { modifiedDate: 'DESC' },
     });
     const userModels = this.mapper(users);
@@ -116,6 +108,27 @@ export class UserService {
     return userModel;
   }
 
+  public async _replacePassword(
+    id: number,
+    password: string,
+    newPassword: string,
+  ): Promise<UserModel> {
+    const encodePassword = this.cryptoUserService.encodePassword(password);
+    const user = await this.userRepositoryService.findOne(id, { select: ['password'] });
+    if (!user) {
+      throw new NotFoundException(`Not found system user by id "${id}"!`);
+    }
+    if (user.password !== encodePassword) {
+      throw new BusinessException(`User id "${id}" password invalid!`, '密码不正确');
+    }
+    const encodeNewPassword = this.cryptoUserService.encodePassword(newPassword);
+    const updatedUser = await this.userRepositoryService.update(id, {
+      password: encodeNewPassword,
+    });
+    const userModel = this.mapper(updatedUser!);
+    return userModel;
+  }
+
   public async _deleteUserById(id: number): Promise<UserModel> {
     const user = await this.userRepositoryService.delete(id);
     if (!user) {
@@ -131,96 +144,5 @@ export class UserService {
       throw new NotFoundException(`Not found system user by id "${id}"!`);
     }
     return user;
-  }
-
-  public async getLocalUserByUsernameAndPassword(
-    username: string,
-    password: string,
-  ): Promise<UserModel | null> {
-    const encodePassword = this.cryptoUserService.encodePassword(password);
-    const user = await this.userRepositoryService.findOne({ username, password: encodePassword });
-    if (!user) {
-      return null;
-    }
-    return this.mapper(user);
-  }
-
-  public async getLocalUsers() {
-    const users = await this.userRepositoryService
-      .createQueryBuilder('users')
-      .where(
-        (subQuery) =>
-          `id NOT IN ${subQuery
-            .from(UserProviderEntity, 'userProviders')
-            .select('userId')
-            .groupBy('userId')}`,
-      )
-      .andWhere('isDeleted = 0')
-      .getMany();
-    return users;
-  }
-
-  public async getUsersByProviderType(type: USER_PROVIDER_TYPE_ENUM): Promise<UserEntity[]> {
-    const users = await this.userRepositoryService
-      .createQueryBuilder('users')
-      .where(
-        (subQuery) =>
-          `id IN ${subQuery
-            .from(UserProviderEntity, 'userProviders')
-            .select('userId')
-            .where('type = :type', { type })}`,
-      )
-      .andWhere('isDeleted = 0')
-      .getMany();
-    return users;
-  }
-
-  public async getRolesByUserId(id: number): Promise<RoleEntity[]> {
-    const user = await this.userRepositoryService.findOne(id, { relations: ['roles'] });
-    if (!user) {
-      return [];
-    }
-    return user.roles!;
-  }
-
-  public async userActionValidator(
-    userId: number,
-    method: ACTION_METHOD_ENUM,
-    path: string,
-  ): Promise<boolean> {
-    const action = await this.connection
-      .getRepository(UserEntity)
-      .createQueryBuilder('users')
-      .innerJoin(
-        '[system].[user-role-mapping]',
-        'userRoleMappings',
-        'userRoleMappings.UserId = users.Id',
-      )
-      .innerJoin(
-        (subQuery) => subQuery.from(RoleEntity, 'roles').where('isDeleted = 0'),
-        'roles',
-        'roles.id = userRoleMappings.roleId',
-      )
-      .innerJoin(
-        (subQuery) =>
-          subQuery
-            .from(RoleClaimEntity, 'roleClaims')
-            .where('type = :type', { type: ROLE_CLAIM_TYPE_ENUM.ACTION }),
-        'roleClaims',
-        'roleClaims.roleId = roles.id',
-      )
-      .innerJoin(
-        (subQuery) =>
-          subQuery
-            .from(ActionEntity, 'actions')
-            .where('method = :method', { method })
-            .andWhere('path = :path', { path })
-            .andWhere('isDeleted = 0'),
-        'actions',
-        'actions.id = roleClaims.key',
-      )
-      .where('users.id = :userId', { userId })
-      .getOne();
-    return action ? true : false;
   }
 }
