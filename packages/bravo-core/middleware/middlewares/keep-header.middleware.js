@@ -26,7 +26,7 @@ let KeepHeaderMiddleware = (() => {
         use(request, response, next) {
             return __awaiter(this, void 0, void 0, function* () {
                 lodash_1.default.forIn(request.headers, (header, value) => {
-                    if (value.substr(0, 2) === 'ng-') {
+                    if (value.substr(0, 2) === 'x-') {
                         response.setHeader(lodash_1.default.map(value.split('-'), lodash_1.default.capitalize).join('-'), lodash_1.default.toString(header));
                     }
                 });

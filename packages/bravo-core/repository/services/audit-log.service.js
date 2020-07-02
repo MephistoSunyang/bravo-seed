@@ -43,6 +43,7 @@ let AuditLogService = (() => {
             const models = entities.map((entity) => this.auditLogRepository.create({
                 schemaName,
                 tableName,
+                tableId: entity.id,
                 action,
                 content: contentResolver(entity),
                 createdUserId,

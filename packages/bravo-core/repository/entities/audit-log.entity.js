@@ -28,6 +28,10 @@ let AuditLogEntity = (() => {
         __metadata("design:type", String)
     ], AuditLogEntity.prototype, "tableName", void 0);
     __decorate([
+        typeorm_1.Column('int'),
+        __metadata("design:type", String)
+    ], AuditLogEntity.prototype, "tableId", void 0);
+    __decorate([
         typeorm_1.Column('varchar'),
         __metadata("design:type", String)
     ], AuditLogEntity.prototype, "action", void 0);

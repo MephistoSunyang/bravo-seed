@@ -3,6 +3,7 @@ export declare class AuditLogEntity {
     id: number;
     schemaName: string;
     tableName: string;
+    tableId: string;
     action: AUDIT_LOG_ACTION_ENUM;
     content: string;
     createdUserId: string | null;
