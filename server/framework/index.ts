@@ -1,5 +1,6 @@
 export * from './authorization';
 export * from './crypto';
+export * from './initialize-database';
 export * from './metadata-storage';
 export * from './passport';
 export * from './passport-local';
