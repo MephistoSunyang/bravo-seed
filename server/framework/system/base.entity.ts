@@ -37,14 +37,18 @@ export abstract class BaseEntity {
   @BeforeInsert()
   public beforeInsertListener() {
     const userId = getCurrentUserId();
-    this.createdUserId = userId ? _.toString(userId) : null;
+    if (!this.createdUserId) {
+      this.createdUserId = userId ? _.toString(userId) : null;
+    }
     this.createdDate = moment().utc().toDate();
   }
 
   @BeforeUpdate()
   public beforeUpdateListener() {
     const userId = getCurrentUserId();
-    this.modifiedUserId = userId ? _.toString(userId) : null;
+    if (!this.modifiedUserId) {
+      this.modifiedUserId = userId ? _.toString(userId) : null;
+    }
     this.modifiedDate = moment().utc().toDate();
   }
 }

@@ -60,9 +60,6 @@ export class MenuService {
     if (queries.group) {
       where.group = Like(queries.group);
     }
-    if (queries.level) {
-      where.level = queries.level;
-    }
     if (queries.parentId) {
       where.parentId = queries.parentId;
     }

@@ -9,9 +9,6 @@ export class MenuEntity extends BaseEntity {
   public group: string;
 
   @Column('int', { default: 0 })
-  public level: number;
-
-  @Column('int', { default: 0 })
   public parentId: number;
 
   @Column('int', { default: 0 })

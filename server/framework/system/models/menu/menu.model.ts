@@ -18,12 +18,6 @@ export class MenuModel extends BaseModel {
   @Expose()
   @IsInt()
   @Min(0)
-  public level: number;
-
-  @ApiProperty({ default: 0, example: 0 })
-  @Expose()
-  @IsInt()
-  @Min(0)
   @ExistedValidator(MenuEntity, {
     groups: [VALIDATOR_GROUP_ENUM.CREATED, VALIDATOR_GROUP_ENUM.UPDATED],
   })
