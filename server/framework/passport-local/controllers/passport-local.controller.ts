@@ -1,6 +1,7 @@
 import { IRequest } from '@bravo/core';
 import {
   Controller,
+  Get,
   Post,
   Request,
   UnauthorizedException,
@@ -19,6 +20,11 @@ import { LoginModel } from '../models';
 export class PassportLocalController {
   constructor(private readonly jwtService: JwtService) {}
 
+  @Get('current/token')
+  public getToken(@Request() request: IRequest): string | null {
+    return request.user ? this.jwtService.sign(request.user) : null;
+  }
+
   @ApiBody({ type: LoginModel })
   @UseGuards(AuthGuard('local'))
   @Post('token')
@@ -27,7 +33,7 @@ export class PassportLocalController {
     if (!user) {
       throw new UnauthorizedException(`Not found user!`);
     }
-    const token = this.jwtService.sign(user);
+    const token = this.jwtService.sign({ id: user['id'] });
     return token;
   }
 }

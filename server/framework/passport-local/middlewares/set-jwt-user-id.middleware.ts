@@ -8,9 +8,10 @@ export class SetJwtUserIdMiddleware implements NestMiddleware {
   constructor(private readonly jwtService: JwtService) {}
 
   public async use(request: IRequest, response: IResponse, next: () => void): Promise<void> {
-    if (request.headers.authorization) {
-      const token = request.headers.authorization;
+    const { authorization } = request.headers;
+    if (authorization && _.isString(authorization)) {
       try {
+        const token = authorization.slice(7);
         const user = this.jwtService.decode(token);
         if (!user) {
           throw new UnauthorizedException(`Invalid token ${token}!`);
