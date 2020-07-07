@@ -1,16 +1,17 @@
 import { HTTP_STATUS_CODE_ENUM } from '@bravo/core';
 import { Controller, Get, Param, Response, UseGuards, UsePipes } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { Permissions } from '../decorators';
+import { ActionGuard, PermissionGuard } from '../guards';
 import { LogService } from '../services';
 
 @ApiTags('system.logs')
-@UseGuards(ActionGuard)
+@ApiBearerAuth()
 @Controller('api/v1/system/logs')
 @UsePipes(ValidatorPipe)
 @UseGuards(PermissionGuard, ActionGuard)
-@Permission('system.logs')
+@Permissions('system.logs')
 export class LogController {
   constructor(private readonly logService: LogService) {}
 

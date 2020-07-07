@@ -1,10 +1,24 @@
 import { BusinessException, InjectRepositoryService, RepositoryService } from '@bravo/core';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { FindConditions, Like } from 'typeorm';
+import { InjectConnection } from '@nestjs/typeorm';
+import _ from 'lodash';
+import { Connection, FindConditions, In, Like, ObjectType, SelectQueryBuilder } from 'typeorm';
 import { CryptoUserService } from '../../crypto';
-import { UserEntity } from '../entities';
+import {
+  ActionEntity,
+  FeatureClaimEntity,
+  FeatureEntity,
+  MenuEntity,
+  PermissionEntity,
+  RoleClaimEntity,
+  UserEntity,
+  UserProviderEntity,
+} from '../entities';
+import { ACTION_METHOD_ENUM, FEATURE_CLAIM_TYPE_ENUM, ROLE_CLAIM_TYPE_ENUM } from '../enums';
 import {
   CreatedUserModel,
+  MenuModel,
+  QueryCurrentUserMenuModel,
   QueryUserAndCountModel,
   QueryUserModel,
   UpdatedUserModel,
@@ -16,8 +30,12 @@ import { ModelService } from './model.service';
 @Injectable()
 export class UserService {
   constructor(
+    @InjectConnection()
+    private readonly connection: Connection,
     @InjectRepositoryService(UserEntity)
     private readonly userRepositoryService: RepositoryService<UserEntity>,
+    @InjectRepositoryService(UserProviderEntity)
+    private readonly userProviderRepositoryService: RepositoryService<UserProviderEntity>,
     private readonly modelService: ModelService,
     private readonly cryptoUserService: CryptoUserService,
   ) {}
@@ -28,65 +46,125 @@ export class UserService {
     return this.modelService.mapper(UserModel, userOrUsers);
   }
 
-  private getWhere(queries: QueryUserModel): FindConditions<UserEntity> {
-    const where: FindConditions<UserEntity> = {};
-    if (queries.username) {
-      where.username = Like(queries.username);
+  private getUsersQueryBuilderByQuery(queries: QueryUserModel): SelectQueryBuilder<UserEntity> {
+    const {
+      username,
+      nickname,
+      realname,
+      phone,
+      phoneConfirmed,
+      email,
+      emailConfirmed,
+      comment,
+      type,
+      roleId,
+    } = queries;
+    const usersQueryBuilder = this.userRepositoryService
+      .createQueryBuilder('users')
+      .leftJoin(UserProviderEntity, 'providers', 'providers.userId = users.id')
+      .leftJoinAndSelect('users.roles', 'roles', 'roles.isDeleted = 0')
+      .where('users.isDeleted = 0');
+    if (username) {
+      usersQueryBuilder.andWhere('users.username LIKE :username', { username });
     }
-    if (queries.nickname) {
-      where.nickname = Like(queries.nickname);
+    if (nickname) {
+      usersQueryBuilder.andWhere('users.nickname LIKE :nickname', { nickname });
     }
-    if (queries.realname) {
-      where.realname = Like(queries.realname);
+    if (realname) {
+      usersQueryBuilder.andWhere('users.realname LIKE :realname', { realname });
     }
-    if (queries.phone) {
-      where.phone = Like(queries.phone);
+    if (phone) {
+      usersQueryBuilder.andWhere('users.phone LIKE :phone', { phone });
     }
-    if (queries.phoneConfirmed) {
-      where.phoneConfirmed = queries.phoneConfirmed;
+    if (phoneConfirmed) {
+      usersQueryBuilder.andWhere('users.phoneConfirmed = phoneConfirmed', { phoneConfirmed });
     }
-    if (queries.email) {
-      where.email = Like(queries.email);
+    if (email) {
+      usersQueryBuilder.andWhere('users.email LIKE :phone', { email });
     }
-    if (queries.emailConfirmed) {
-      where.emailConfirmed = queries.emailConfirmed;
+    if (emailConfirmed) {
+      usersQueryBuilder.andWhere('users.emailConfirmed = phoneConfirmed', { emailConfirmed });
     }
-    if (queries.comment) {
-      where.comment = Like(queries.comment);
+    if (comment) {
+      usersQueryBuilder.andWhere('users.comment LIKE :comment', { comment });
     }
-    return where;
+    if (type) {
+      if (type === 'local') {
+        usersQueryBuilder.where(
+          'users.id NOT IN (SELECT userId FROM system.[user-providers] GROUP BY userId)',
+        );
+      } else {
+        usersQueryBuilder.andWhere('providers.type = :type', { type });
+      }
+    }
+    if (roleId) {
+      usersQueryBuilder.andWhere('roles.id = :roleId', { roleId });
+    }
+    usersQueryBuilder.orderBy('users.modifiedDate', 'DESC');
+    return usersQueryBuilder;
+  }
+
+  private async getUserModels(users: UserEntity[]): Promise<UserModel[]> {
+    if (users.length === 0) {
+      return [];
+    }
+    const userIds = _.map(users, 'id');
+    const userProviders = await this.userProviderRepositoryService.find({
+      userId: In(userIds),
+    });
+    const userModels = this.mapper(users);
+    userModels.forEach((userModel) => {
+      const types = _.chain(userProviders)
+        .filter({ userId: userModel.id })
+        .map('type')
+        .uniq()
+        .value();
+      userModel.types = types;
+    });
+    return userModels;
   }
 
   public async _getUsersAndCount(queries: QueryUserAndCountModel): Promise<UserAndCountModel> {
-    const skip = (queries.pageNumber - 1) * queries.pageSize;
-    const take = queries.pageSize;
-    const where = this.getWhere(queries);
-    const [users, count] = await this.userRepositoryService.findAndCount({
-      where,
-      relations: ['roles'],
-      order: { modifiedDate: 'DESC' },
-      skip,
-      take,
-    });
-    const userModels = this.mapper(users);
+    const offset = (queries.pageNumber - 1) * queries.pageSize;
+    const limit = queries.pageSize;
+    const [users, count] = await this.getUsersQueryBuilderByQuery(queries)
+      .offset(offset)
+      .limit(limit)
+      .getManyAndCount();
+    const userModels = await this.getUserModels(users);
     return { data: userModels, count };
   }
 
   public async _getUsers(queries: QueryUserModel): Promise<UserModel[]> {
-    const where = this.getWhere(queries);
-    const users = await this.userRepositoryService.find({
-      where,
-      relations: ['roles'],
-      order: { modifiedDate: 'DESC' },
-    });
-    const userModels = this.mapper(users);
+    const usersQueryBuilder = this.getUsersQueryBuilderByQuery(queries);
+    const users = await usersQueryBuilder.getMany();
+    const userModels = await this.getUserModels(users);
     return userModels;
+  }
+
+  public async _getUserProviderTypes(): Promise<string[]> {
+    const providerTypes: { type: string }[] = await this.connection
+      .createQueryBuilder(UserProviderEntity, 'providers')
+      .select('type')
+      .groupBy('type')
+      .getRawMany();
+    return _.map(providerTypes, 'type');
   }
 
   public async _getUserById(id: number): Promise<UserModel> {
     const user = await this.getUserByIdOrFail(id);
     const userModel = this.mapper(user);
     return userModel;
+  }
+
+  public async _getCurrentUserMenus(
+    userId: number,
+    queryCurrentUserMenu: QueryCurrentUserMenuModel,
+  ): Promise<MenuModel[]> {
+    const { groups } = queryCurrentUserMenu;
+    const menus = await this.getMenusByUserId(userId, groups);
+    const menuModels = this.modelService.mapper(MenuModel, menus);
+    return menuModels;
   }
 
   public async _createUser(createdUserModel: CreatedUserModel): Promise<UserModel> {
@@ -144,5 +222,128 @@ export class UserService {
       throw new NotFoundException(`Not found system user by id "${id}"!`);
     }
     return user;
+  }
+
+  public getRoleClaimsQueryBuilderByUserId<IClaimEntity>(
+    claimEntity: ObjectType<IClaimEntity>,
+    claimType: ROLE_CLAIM_TYPE_ENUM,
+    userId: number,
+  ): SelectQueryBuilder<IClaimEntity> {
+    return this.connection
+      .createQueryBuilder(claimEntity, 'claims')
+      .innerJoin(
+        (selectQuery) =>
+          selectQuery
+            .from(RoleClaimEntity, 'roleClaims')
+            .where('type = :type', { type: claimType }),
+        'roleClaims',
+        'roleClaims."key" = claims.id',
+      )
+      .innerJoin(
+        (selectQuery) =>
+          selectQuery
+            .from(UserEntity, 'users')
+            .select('roles.id', 'id')
+            .leftJoin('users.roles', 'roles')
+            .where('users.isDeleted = 0')
+            .andWhere('roles.isDeleted = 0')
+            .andWhere('users.id = :userId', { userId }),
+        'roles',
+        'roles.id = roleClaims.roleId',
+      );
+  }
+
+  public getFeatureClaimQueryBuilderByUserId<IClaimEntity>(
+    entity: ObjectType<IClaimEntity>,
+    type: FEATURE_CLAIM_TYPE_ENUM,
+    userId: number,
+  ): SelectQueryBuilder<IClaimEntity> {
+    return this.connection
+      .createQueryBuilder(entity, 'claims')
+      .innerJoin(
+        (selectQuery) =>
+          selectQuery.from(FeatureClaimEntity, 'featureClaims').where('type = :type', { type }),
+        'featureClaims',
+        'featureClaims."key" = claims.id',
+      )
+      .innerJoin(
+        (selectQuery) => selectQuery.from(FeatureEntity, 'features').where('isDeleted = 0'),
+        'features',
+        'features.id = featureClaims.featureId',
+      )
+      .innerJoin(
+        (selectQuery) =>
+          selectQuery
+            .from(RoleClaimEntity, 'roleClaims')
+            .where('type = :roleClaimType', { roleClaimType: ROLE_CLAIM_TYPE_ENUM.FEATURE }),
+        'roleClaims',
+        'roleClaims."key" = features.id',
+      )
+      .innerJoin(
+        (selectQuery) =>
+          selectQuery
+            .from(UserEntity, 'users')
+            .select('roles.id', 'id')
+            .leftJoin('users.roles', 'roles')
+            .where('users.isDeleted = 0')
+            .andWhere('roles.isDeleted = 0')
+            .andWhere('users.id = :userId', { userId }),
+        'roles',
+        'roles.id = roleClaims.roleId',
+      );
+  }
+
+  public getFeaturesByUserId(userId: number, codes?: string[]): Promise<FeatureEntity[]> {
+    const queryBuilder = this.getRoleClaimsQueryBuilderByUserId(
+      FeatureEntity,
+      ROLE_CLAIM_TYPE_ENUM.FEATURE,
+      userId,
+    );
+    if (codes) {
+      queryBuilder.where('claims.code IN (:codes)', { codes: codes.join(',') });
+    }
+    return queryBuilder.getMany();
+  }
+
+  public getMenusByUserId(userId: number, groups?: string[]): Promise<MenuEntity[]> {
+    const queryBuilder = this.getFeatureClaimQueryBuilderByUserId(
+      MenuEntity,
+      FEATURE_CLAIM_TYPE_ENUM.MENU,
+      userId,
+    );
+    if (groups) {
+      queryBuilder.where('claims.group IN (:groups)', { codes: groups.join(',') });
+    }
+    return queryBuilder.getMany();
+  }
+
+  public getPermissionsByUserId(userId: number, codes?: string[]): Promise<PermissionEntity[]> {
+    const queryBuilder = this.getFeatureClaimQueryBuilderByUserId(
+      PermissionEntity,
+      FEATURE_CLAIM_TYPE_ENUM.PERMISSION,
+      userId,
+    );
+    if (codes) {
+      queryBuilder.where('claims.code IN (:codes)', { codes: codes.join(',') });
+    }
+    return queryBuilder.getMany();
+  }
+
+  public getActionsByUserId(
+    userId: number,
+    method: ACTION_METHOD_ENUM,
+    path: string,
+  ): Promise<ActionEntity[]> {
+    const queryBuilder = this.getFeatureClaimQueryBuilderByUserId(
+      ActionEntity,
+      FEATURE_CLAIM_TYPE_ENUM.ACTION,
+      userId,
+    );
+    if (method && path) {
+      queryBuilder
+        .andWhere('claims.method = :method', { method })
+        .andWhere('claims.path = :path', { path });
+    }
+    return queryBuilder.getMany();
   }
 }

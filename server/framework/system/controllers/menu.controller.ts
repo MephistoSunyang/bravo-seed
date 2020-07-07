@@ -13,38 +13,21 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
-import {
-  CreatedMenuModel,
-  MenuAndCountModel,
-  MenuModel,
-  QueryMenuAndCountModel,
-  QueryMenuModel,
-  UpdatedMenuModel,
-} from '../models';
+import { Permissions } from '../decorators';
+import { ActionGuard, PermissionGuard } from '../guards';
+import { CreatedMenuModel, MenuModel, QueryMenuModel, UpdatedMenuModel } from '../models';
 import { MenuService } from '../services';
 
 @ApiTags('system.menus')
+@ApiBearerAuth()
 @Controller('api/v1/system/menus')
 @UsePipes(ValidatorPipe)
 @UseGuards(PermissionGuard, ActionGuard)
-@Permission('system.menus')
+@Permissions('system.menus')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
-
-  @ApiResponse({
-    status: HTTP_STATUS_CODE_ENUM.OK,
-    type: MenuAndCountModel,
-  })
-  @Get('/andCount')
-  public async getMenusAndCount(
-    @Query() queries: QueryMenuAndCountModel,
-  ): Promise<MenuAndCountModel> {
-    const result = await this.menuService._getMenusAndCount(queries);
-    return result;
-  }
 
   @ApiResponse({
     status: HTTP_STATUS_CODE_ENUM.OK,

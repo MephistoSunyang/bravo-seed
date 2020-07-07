@@ -1,4 +1,5 @@
 export * from './action.service';
+export * from './claim.service';
 export * from './config.service';
 export * from './feature.service';
 export * from './log.service';

@@ -1,10 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  IsEnum,
+} from 'class-validator';
 import { ExistedValidator, UniqueValidator, VALIDATOR_GROUP_ENUM } from '../../../validator';
 import { BaseModel } from '../../base.model';
 import { RoleEntity, UserEntity } from '../../entities';
 import { RoleModel } from '../role';
+import { USER_PROVIDER_TYPE_ENUM } from '../../enums';
 
 export class UserModel extends BaseModel {
   @ApiProperty()
@@ -63,6 +72,13 @@ export class UserModel extends BaseModel {
   })
   @Type(() => RoleModel)
   public roles?: RoleModel[];
+
+  @ApiProperty()
+  @Expose()
+  @IsArray()
+  @IsOptional()
+  @IsEnum(USER_PROVIDER_TYPE_ENUM)
+  public types?: USER_PROVIDER_TYPE_ENUM[];
 
   @ApiProperty({ type: 'string | null', example: null })
   @Expose()

@@ -27,6 +27,7 @@ import {
 } from './entities';
 import {
   ActionService,
+  ClaimService,
   ConfigService,
   FeatureService,
   LogService,
@@ -65,6 +66,7 @@ const controllers = [
 ];
 const services = [
   ActionService,
+  ClaimService,
   ConfigService,
   FeatureService,
   LogService,

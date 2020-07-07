@@ -14,11 +14,15 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserId } from '../../passport';
 import { ValidatorPipe } from '../../validator';
+import { Permissions } from '../decorators';
+import { ActionGuard, PermissionGuard } from '../guards';
 import {
   CreatedUserModel,
+  MenuModel,
+  QueryCurrentUserMenuModel,
   QueryUserAndCountModel,
   QueryUserModel,
   ReplaceUserPasswordModel,
@@ -29,10 +33,11 @@ import {
 import { UserService } from '../services';
 
 @ApiTags('system.users')
+@ApiBearerAuth()
 @Controller('api/v1/system/users')
 @UsePipes(ValidatorPipe)
 @UseGuards(PermissionGuard, ActionGuard)
-@Permission('system.users')
+@Permissions('system.users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -61,11 +66,46 @@ export class UserController {
 
   @ApiResponse({
     status: HTTP_STATUS_CODE_ENUM.OK,
+    type: String,
+    isArray: true,
+  })
+  @Get('types')
+  public async get() {
+    const providerTypes = await this.userService._getUserProviderTypes();
+    return providerTypes;
+  }
+
+  @ApiResponse({
+    status: HTTP_STATUS_CODE_ENUM.OK,
     type: UserModel,
   })
   @Get(':id')
   public async getUserById(@Param('id', new ParseIntPipe()) id: number): Promise<UserModel> {
     const userModel = await this.userService._getUserById(id);
+    return userModel;
+  }
+
+  @ApiResponse({
+    status: HTTP_STATUS_CODE_ENUM.OK,
+    type: String,
+  })
+  @Get('current/username')
+  public async getCurrentUserUsername(@UserId() userId: number): Promise<string> {
+    const userModel = await this.userService._getUserById(userId);
+    return userModel.username;
+  }
+
+  @ApiResponse({
+    status: HTTP_STATUS_CODE_ENUM.OK,
+    type: MenuModel,
+    isArray: true,
+  })
+  @Get('current/menus')
+  public async getCurrentUserMenus(
+    @UserId() userId: number,
+    @Query() queryCurrentUserMenu: QueryCurrentUserMenuModel,
+  ): Promise<MenuModel[]> {
+    const userModel = await this.userService._getCurrentUserMenus(userId, queryCurrentUserMenu);
     return userModel;
   }
 

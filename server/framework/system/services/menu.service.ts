@@ -3,14 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import _ from 'lodash';
 import { FindConditions, Like } from 'typeorm';
 import { MenuEntity } from '../entities';
-import {
-  CreatedMenuModel,
-  MenuAndCountModel,
-  MenuModel,
-  QueryMenuAndCountModel,
-  QueryMenuModel,
-  UpdatedMenuModel,
-} from '../models';
+import { CreatedMenuModel, MenuModel, QueryMenuModel, UpdatedMenuModel } from '../models';
 import { ModelService } from './model.service';
 
 @Injectable()
@@ -27,33 +20,33 @@ export class MenuService {
     return this.modelService.mapper(MenuModel, menuOrMenus);
   }
 
-  private getSubMenuModels(parentId: number, menuModels: MenuModel[]): MenuModel[] {
-    const subMenuModels = _.chain(menuModels)
-      .filter({ parentId })
-      .forEach((menuModel) => {
-        menuModel.subMenus = this.getSubMenuModels(menuModel.id, menuModels);
-      })
-      .sortBy('sort')
-      .value();
-    return subMenuModels;
-  }
+  // private getSubMenuModels(parentId: number, menuModels: MenuModel[]): MenuModel[] {
+  //   const subMenuModels = _.chain(menuModels)
+  //     .filter({ parentId })
+  //     .forEach((menuModel) => {
+  //       menuModel.subMenus = this.getSubMenuModels(menuModel.id, menuModels);
+  //     })
+  //     .sortBy('sort')
+  //     .value();
+  //   return subMenuModels;
+  // }
 
-  private getTreeMenuModels(
-    menuModels: MenuModel[],
-    skip = 0,
-    take = menuModels.length,
-  ): MenuModel[] {
-    const treeMenuModels = _.chain(menuModels)
-      .filter({ parentId: 0 })
-      .sortBy('sort')
-      .slice(skip)
-      .take(take)
-      .forEach((menuModel) => {
-        menuModel.subMenus = this.getSubMenuModels(menuModel.id, menuModels);
-      })
-      .value();
-    return treeMenuModels;
-  }
+  // private getTreeMenuModels(
+  //   menuModels: MenuModel[],
+  //   skip = 0,
+  //   take = menuModels.length,
+  // ): MenuModel[] {
+  //   const treeMenuModels = _.chain(menuModels)
+  //     .filter({ parentId: 0 })
+  //     .sortBy('sort')
+  //     .slice(skip)
+  //     .take(take)
+  //     .forEach((menuModel) => {
+  //       menuModel.subMenus = this.getSubMenuModels(menuModel.id, menuModels);
+  //     })
+  //     .value();
+  //   return treeMenuModels;
+  // }
 
   private getWhere(queries: QueryMenuModel): FindConditions<MenuEntity> {
     const where: FindConditions<MenuEntity> = {};
@@ -78,24 +71,13 @@ export class MenuService {
     return where;
   }
 
-  public async _getMenusAndCount(queries: QueryMenuAndCountModel): Promise<MenuAndCountModel> {
-    const skip = (queries.pageNumber - 1) * queries.pageSize;
-    const take = queries.pageSize;
-    const where = this.getWhere(queries);
-    const [menus, count] = await this.menuRepositoryService.findAndCount({
-      where,
-    });
-    const menuModels = this.getTreeMenuModels(this.mapper(menus), skip, take);
-    return { data: menuModels, count };
-  }
-
   public async _getMenus(queries: QueryMenuModel): Promise<MenuModel[]> {
     const where = this.getWhere(queries);
     const menus = await this.menuRepositoryService.find({
       where,
       order: { modifiedDate: 'DESC' },
     });
-    const menuModels = this.getTreeMenuModels(this.mapper(menus));
+    const menuModels = this.mapper(menus);
     return menuModels;
   }
 

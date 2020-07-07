@@ -10,6 +10,7 @@ import {
   PermissionEntity,
 } from '../entities';
 import { FEATURE_CLAIM_TYPE_ENUM } from '../enums';
+import { IClaimColumnOptions, IFeatureClaimOptions } from '../interfaces';
 import {
   ActionModel,
   CreatedFeatureModel,
@@ -21,10 +22,17 @@ import {
   QueryFeatureModel,
   UpdatedFeatureModel,
 } from '../models';
+import { ClaimService } from './claim.service';
 import { ModelService } from './model.service';
 
 @Injectable()
 export class FeatureService {
+  private readonly featureClaimColumnOptions: IClaimColumnOptions = {
+    idField: 'featureId',
+    typeField: 'type',
+    keyField: 'key',
+  };
+
   constructor(
     @InjectRepositoryService(FeatureEntity)
     private readonly featureRepositoryService: RepositoryService<FeatureEntity>,
@@ -37,6 +45,7 @@ export class FeatureService {
     @InjectRepositoryService(ActionEntity)
     private readonly actionRepositoryService: RepositoryService<ActionEntity>,
     private readonly modelService: ModelService,
+    private readonly claimService: ClaimService,
   ) {}
 
   private mapper(features: FeatureEntity[]): FeatureModel[];
@@ -61,48 +70,48 @@ export class FeatureService {
     return where;
   }
 
-  private getFeatureClaimModels(
-    featureId: number,
-    type: FEATURE_CLAIM_TYPE_ENUM,
-    claims?: { id: number }[],
-  ): FeatureClaimEntity[] {
-    const featureClaimModels =
-      claims && claims.length !== 0
-        ? _.map(claims, (claim) =>
-            this.featureClaimRepositoryService.create({
-              type,
-              key: _.toString(claim.id),
-              featureId,
-            }),
-          )
-        : [];
-    return featureClaimModels;
-  }
+  // private getFeatureClaimModels(
+  //   featureId: number,
+  //   type: FEATURE_CLAIM_TYPE_ENUM,
+  //   claims?: { id: number }[],
+  // ): FeatureClaimEntity[] {
+  //   const featureClaimModels =
+  //     claims && claims.length !== 0
+  //       ? _.map(claims, (claim) =>
+  //           this.featureClaimRepositoryService.create({
+  //             type,
+  //             key: _.toString(claim.id),
+  //             featureId,
+  //           }),
+  //         )
+  //       : [];
+  //   return featureClaimModels;
+  // }
 
-  private createFeatureClaimsByFeatureId(
-    featureId: number,
-    menus?: MenuModel[],
-    permissions?: PermissionModel[],
-    actions?: ActionModel[],
-  ): Promise<FeatureClaimEntity[]> {
-    const featureClaimModels = _.concat(
-      this.getFeatureClaimModels(featureId, FEATURE_CLAIM_TYPE_ENUM.MENU, menus),
-      this.getFeatureClaimModels(featureId, FEATURE_CLAIM_TYPE_ENUM.PERMISSION, permissions),
-      this.getFeatureClaimModels(featureId, FEATURE_CLAIM_TYPE_ENUM.ACTION, actions),
-    );
-    return this.featureClaimRepositoryService.insertBulk(featureClaimModels);
-  }
+  // private createFeatureClaimsByFeatureId(
+  //   featureId: number,
+  //   menus?: MenuModel[],
+  //   permissions?: PermissionModel[],
+  //   actions?: ActionModel[],
+  // ): Promise<FeatureClaimEntity[]> {
+  //   const featureClaimModels = _.concat(
+  //     this.getFeatureClaimModels(featureId, FEATURE_CLAIM_TYPE_ENUM.MENU, menus),
+  //     this.getFeatureClaimModels(featureId, FEATURE_CLAIM_TYPE_ENUM.PERMISSION, permissions),
+  //     this.getFeatureClaimModels(featureId, FEATURE_CLAIM_TYPE_ENUM.ACTION, actions),
+  //   );
+  //   return this.featureClaimRepositoryService.insertBulk(featureClaimModels);
+  // }
 
-  private deleteFeatureClaimsByFeatureId(featureId: number): Promise<FeatureClaimEntity[]> {
-    return this.featureClaimRepositoryService.deleteBulk({
-      type: In([
-        FEATURE_CLAIM_TYPE_ENUM.MENU,
-        FEATURE_CLAIM_TYPE_ENUM.PERMISSION,
-        FEATURE_CLAIM_TYPE_ENUM.ACTION,
-      ]),
-      featureId,
-    });
-  }
+  // private deleteFeatureClaimsByFeatureId(featureId: number): Promise<FeatureClaimEntity[]> {
+  //   return this.featureClaimRepositoryService.deleteBulk({
+  //     type: In([
+  //       FEATURE_CLAIM_TYPE_ENUM.MENU,
+  //       FEATURE_CLAIM_TYPE_ENUM.PERMISSION,
+  //       FEATURE_CLAIM_TYPE_ENUM.ACTION,
+  //     ]),
+  //     featureId,
+  //   });
+  // }
 
   public async _getFeaturesAndCount(
     queries: QueryFeatureAndCountModel,
@@ -138,12 +147,21 @@ export class FeatureService {
 
   public async _createFeature(createdFeatureModel: CreatedFeatureModel): Promise<FeatureModel> {
     const feature = await this.featureRepositoryService.insert(createdFeatureModel);
-    await this.createFeatureClaimsByFeatureId(
-      feature.id,
-      createdFeatureModel.menus,
-      createdFeatureModel.permissions,
-      createdFeatureModel.actions,
-    );
+    await this.createFeatureClaimsByFeatureId(feature.id, {
+      menus: { type: FEATURE_CLAIM_TYPE_ENUM.MENU, collections: createdFeatureModel.menus },
+      permissions: {
+        type: FEATURE_CLAIM_TYPE_ENUM.PERMISSION,
+        collections: createdFeatureModel.permissions,
+      },
+      actions: {
+        type: FEATURE_CLAIM_TYPE_ENUM.ACTION,
+        collections: createdFeatureModel.actions,
+      },
+      id: {
+        type: FEATURE_CLAIM_TYPE_ENUM.ACTION,
+        collections: 0,
+      },
+    });
     const featureModel = this.mapper(feature);
     return featureModel;
   }
@@ -156,13 +174,14 @@ export class FeatureService {
     if (!feature) {
       throw new NotFoundException(`Not found system feature by id "${id}"!`);
     }
-    await this.deleteFeatureClaimsByFeatureId(id);
-    await this.createFeatureClaimsByFeatureId(
-      feature.id,
-      updatedFeatureModel.menus,
-      updatedFeatureModel.permissions,
-      updatedFeatureModel.actions,
-    );
+    await this.createFeatureClaimsByFeatureId(feature.id, {
+      menus: { type: FEATURE_CLAIM_TYPE_ENUM.MENU, collections: updatedFeatureModel.menus },
+      permissions: {
+        type: FEATURE_CLAIM_TYPE_ENUM.PERMISSION,
+        collections: updatedFeatureModel.permissions,
+      },
+      actions: { type: FEATURE_CLAIM_TYPE_ENUM.ACTION, collections: updatedFeatureModel.actions },
+    });
     const featureModel = this.mapper(feature);
     return featureModel;
   }
@@ -172,9 +191,49 @@ export class FeatureService {
     if (!feature) {
       throw new NotFoundException(`Not found feature by id "${id}"!`);
     }
-    await this.deleteFeatureClaimsByFeatureId(id);
+    await this.deleteFeatureClaimsByFeatureId(feature.id, [
+      FEATURE_CLAIM_TYPE_ENUM.MENU,
+      FEATURE_CLAIM_TYPE_ENUM.PERMISSION,
+      FEATURE_CLAIM_TYPE_ENUM.ACTION,
+    ]);
     const featureModel = this.mapper(feature);
     return featureModel;
+  }
+
+  public createFeatureClaimsByFeatureId(
+    featureId: number,
+    options: IFeatureClaimOptions,
+  ): Promise<FeatureClaimEntity[]> {
+    return this.claimService.createClaimsById(
+      this.featureClaimRepositoryService,
+      featureId,
+      options,
+      this.featureClaimColumnOptions,
+    );
+  }
+
+  public updateFeatureClaimByFeatureId(
+    featureId: number,
+    options: IFeatureClaimOptions,
+  ): Promise<FeatureClaimEntity[]> {
+    return this.claimService.updateClaimById(
+      this.featureClaimRepositoryService,
+      featureId,
+      options,
+      this.featureClaimColumnOptions,
+    );
+  }
+
+  public deleteFeatureClaimsByFeatureId(
+    featureId: number,
+    types: FEATURE_CLAIM_TYPE_ENUM[],
+  ): Promise<FeatureClaimEntity[]> {
+    return this.claimService.deleteClaimsById(
+      this.featureClaimRepositoryService,
+      featureId,
+      types,
+      this.featureClaimColumnOptions,
+    );
   }
 
   public async getFeatureModels(features: FeatureEntity[]): Promise<FeatureModel[]> {

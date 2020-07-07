@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { FindConditions, In, Like } from 'typeorm';
 import { FeatureEntity, RoleClaimEntity, RoleEntity } from '../entities';
 import { ROLE_CLAIM_TYPE_ENUM } from '../enums';
+import { IClaimColumnOptions, IRoleClaimOptions } from '../interfaces';
 import {
   CreatedRoleModel,
   FeatureModel,
@@ -13,10 +14,17 @@ import {
   RoleModel,
   UpdatedRoleModel,
 } from '../models';
+import { ClaimService } from './claim.service';
 import { ModelService } from './model.service';
 
 @Injectable()
 export class RoleService {
+  private readonly roleClaimColumnOptions: IClaimColumnOptions = {
+    idField: 'roleId',
+    typeField: 'type',
+    keyField: 'key',
+  };
+
   constructor(
     @InjectRepositoryService(RoleEntity)
     private readonly roleRepositoryService: RepositoryService<RoleEntity>,
@@ -25,6 +33,7 @@ export class RoleService {
     @InjectRepositoryService(FeatureEntity)
     private readonly featureRepositoryService: RepositoryService<FeatureEntity>,
     private readonly modelService: ModelService,
+    private readonly claimService: ClaimService,
   ) {}
 
   private mapper(roles: RoleEntity[]): RoleModel[];
@@ -48,41 +57,6 @@ export class RoleService {
       where.comment = Like(queries.comment);
     }
     return where;
-  }
-
-  private getRoleClaimModels(
-    roleId: number,
-    type: ROLE_CLAIM_TYPE_ENUM,
-    claims?: { id: number }[],
-  ): RoleClaimEntity[] {
-    const featureClaimModels =
-      claims && claims.length !== 0
-        ? _.map(claims, (claim) =>
-            this.roleClaimRepositoryService.create({
-              type,
-              key: _.toString(claim.id),
-              roleId,
-            }),
-          )
-        : [];
-    return featureClaimModels;
-  }
-
-  private createRoleClaimsByRoleId(
-    featureId: number,
-    features?: FeatureModel[],
-  ): Promise<RoleClaimEntity[]> {
-    const featureClaimModels = _.concat(
-      this.getRoleClaimModels(featureId, ROLE_CLAIM_TYPE_ENUM.FEATURE, features),
-    );
-    return this.roleClaimRepositoryService.insertBulk(featureClaimModels);
-  }
-
-  private deleteRoleClaimsByRoleId(roleId: number): Promise<RoleClaimEntity[]> {
-    return this.roleClaimRepositoryService.deleteBulk({
-      type: In([ROLE_CLAIM_TYPE_ENUM.FEATURE]),
-      roleId,
-    });
   }
 
   public async _getRolesAndCount(queries: QueryRoleAndCountModel): Promise<RoleAndCountModel> {
@@ -117,7 +91,9 @@ export class RoleService {
 
   public async _createRole(createdRoleModel: CreatedRoleModel): Promise<RoleModel> {
     const role = await this.roleRepositoryService.insert(createdRoleModel);
-    await this.createRoleClaimsByRoleId(role.id, createdRoleModel.features);
+    await this.createRoleClaimsByRoleId(role.id, {
+      features: { type: ROLE_CLAIM_TYPE_ENUM.FEATURE, collections: createdRoleModel.features },
+    });
     const roleModel = this.mapper(role);
     return roleModel;
   }
@@ -127,8 +103,9 @@ export class RoleService {
     if (!role) {
       throw new NotFoundException(`Not found system role by id "${id}"!`);
     }
-    await this.deleteRoleClaimsByRoleId(id);
-    await this.createRoleClaimsByRoleId(role.id, updatedRoleModel.features);
+    await this.createRoleClaimsByRoleId(role.id, {
+      features: { type: ROLE_CLAIM_TYPE_ENUM.FEATURE, collections: updatedRoleModel.features },
+    });
     const roleModel = this.mapper(role);
     return roleModel;
   }
@@ -138,8 +115,45 @@ export class RoleService {
     if (!role) {
       throw new NotFoundException(`Not found role by id "${id}"!`);
     }
+    await this.deleteRoleClaimsByRoleId(role.id, [ROLE_CLAIM_TYPE_ENUM.FEATURE]);
     const roleModel = this.mapper(role);
     return roleModel;
+  }
+
+  public createRoleClaimsByRoleId(
+    roleId: number,
+    options: IRoleClaimOptions,
+  ): Promise<RoleClaimEntity[]> {
+    return this.claimService.createClaimsById(
+      this.roleClaimRepositoryService,
+      roleId,
+      options,
+      this.roleClaimColumnOptions,
+    );
+  }
+
+  public updateRoleClaimByRoleId(
+    roleId: number,
+    options: IRoleClaimOptions,
+  ): Promise<RoleClaimEntity[]> {
+    return this.claimService.updateClaimById(
+      this.roleClaimRepositoryService,
+      roleId,
+      options,
+      this.roleClaimColumnOptions,
+    );
+  }
+
+  public deleteRoleClaimsByRoleId(
+    roleId: number,
+    types: ROLE_CLAIM_TYPE_ENUM[],
+  ): Promise<RoleClaimEntity[]> {
+    return this.claimService.deleteClaimsById(
+      this.roleClaimRepositoryService,
+      roleId,
+      types,
+      this.roleClaimColumnOptions,
+    );
   }
 
   public async getRoleModels(roles: RoleEntity[]): Promise<RoleModel[]> {

@@ -13,9 +13,10 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { Permissions } from '../decorators';
+import { ActionGuard, PermissionGuard } from '../guards';
 import {
   CreatedFeatureModel,
   FeatureAndCountModel,
@@ -27,10 +28,11 @@ import {
 import { FeatureService } from '../services';
 
 @ApiTags('system.features')
+@ApiBearerAuth()
 @Controller('api/v1/system/features')
 @UsePipes(ValidatorPipe)
 @UseGuards(PermissionGuard, ActionGuard)
-@Permission('system.features')
+@Permissions('system.features')
 export class FeatureController {
   constructor(private readonly featureService: FeatureService) {}
 

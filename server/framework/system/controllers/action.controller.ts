@@ -13,9 +13,10 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { Permissions } from '../decorators';
+import { ActionGuard, PermissionGuard } from '../guards';
 import {
   ActionAndCountModel,
   ActionModel,
@@ -27,10 +28,11 @@ import {
 import { ActionService } from '../services';
 
 @ApiTags('system.actions')
+@ApiBearerAuth()
 @Controller('api/v1/system/actions')
 @UsePipes(ValidatorPipe)
 @UseGuards(PermissionGuard, ActionGuard)
-@Permission('system.actions')
+@Permissions('system.actions')
 export class ActionController {
   constructor(private readonly actionService: ActionService) {}
 

@@ -13,9 +13,10 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActionGuard, Permission, PermissionGuard } from '../../authorization';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidatorPipe } from '../../validator';
+import { Permissions } from '../decorators';
+import { ActionGuard, PermissionGuard } from '../guards';
 import {
   CreatedPermissionModel,
   PermissionAndCountModel,
@@ -27,10 +28,11 @@ import {
 import { PermissionService } from '../services';
 
 @ApiTags('system.permissions')
+@ApiBearerAuth()
 @Controller('api/v1/system/permissions')
 @UsePipes(ValidatorPipe)
 @UseGuards(PermissionGuard, ActionGuard)
-@Permission('system.permissions')
+@Permissions('system.permissions')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 

@@ -82,6 +82,7 @@ const bootstrap = async () => {
         .setTitle('The bravo framework APIs documents')
         .setDescription('The bravo framework APIs description')
         .setVersion('1.0')
+        .addBearerAuth()
         .build();
       const document = SwaggerModule.createDocument(app, options);
       SwaggerModule.setup('api/v1', app, document, { swaggerOptions: { docExpansion: 'none' } });

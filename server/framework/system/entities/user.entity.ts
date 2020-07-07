@@ -39,6 +39,6 @@ export class UserEntity extends BaseEntity {
     joinColumn: { name: 'userId' },
     inverseJoinColumn: { name: 'roleId' },
   })
-  @ManyToMany(() => RoleEntity)
+  @ManyToMany(() => RoleEntity, (role) => role.users)
   public roles?: RoleEntity[];
 }
