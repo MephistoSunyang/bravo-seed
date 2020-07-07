@@ -7,7 +7,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 1,
     name: '用户管理',
     icon: 'user',
-    path: 'system/users',
+    path: '/system/users',
   },
   {
     group: 'systemAdmin',
@@ -15,7 +15,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 2,
     name: '角色组管理',
     icon: 'usergroup-add',
-    path: 'system/roleGroups',
+    path: '/system/roleGroups',
   },
   {
     group: 'systemAdmin',
@@ -23,7 +23,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 3,
     name: '角色管理',
     icon: 'team',
-    path: 'system/roles',
+    path: '/system/roles',
   },
   {
     group: 'systemAdmin',
@@ -31,7 +31,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 4,
     name: '功能管理',
     icon: 'block',
-    path: 'system/features',
+    path: '/system/features',
   },
   {
     group: 'systemAdmin',
@@ -39,7 +39,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 5,
     name: '菜单管理',
     icon: 'menu',
-    path: 'system/menus',
+    path: '/system/menus',
   },
   {
     group: 'systemAdmin',
@@ -47,7 +47,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 6,
     name: '权限管理',
     icon: 'lock',
-    path: 'system/permissions',
+    path: '/system/permissions',
   },
   {
     group: 'systemAdmin',
@@ -55,7 +55,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 7,
     name: '接口管理',
     icon: 'api',
-    path: 'system/actions',
+    path: '/system/actions',
   },
   {
     group: 'systemAdmin',
@@ -63,7 +63,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 8,
     name: '配置管理',
     icon: 'setting',
-    path: 'system/configs',
+    path: '/system/configs',
   },
   {
     group: 'systemAdmin',
@@ -71,6 +71,6 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     sort: 9,
     name: '日志管理',
     icon: 'code',
-    path: 'system/logs',
+    path: '/system/logs',
   },
 ];

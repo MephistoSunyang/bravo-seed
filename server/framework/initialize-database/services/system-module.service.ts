@@ -51,7 +51,7 @@ export class SystemModuleService {
         name: '超级管理员',
         createdUserId,
       });
-      const user = await this.userRepositoryService.insert({
+      await this.userRepositoryService.insert({
         username,
         password: this.cryptoUserService.encodePassword(password),
         roles: [role],
@@ -66,7 +66,6 @@ export class SystemModuleService {
         group: 'systemAdmin',
         name: '系统后台管理',
         icon: 'menu',
-        path: 'system',
         createdUserId,
       });
       const menuModels = _.map(SYSTEM_MENU_CONFIG, (config) =>

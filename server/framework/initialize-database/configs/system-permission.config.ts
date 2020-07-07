@@ -1,8 +1,8 @@
 import { ISystemPermissionConfig } from '../interfaces';
 
 export const SYSTEM_PERMISSION_CONFIG: ISystemPermissionConfig[] = [
-  { code: 'system.user', name: '系统模块用户管理权限' },
-  { code: 'system.roleGroup', name: '系统模块角色组管理权限' },
+  { code: 'system.users', name: '系统模块用户管理权限' },
+  { code: 'system.roleGroups', name: '系统模块角色组管理权限' },
   { code: 'system.roles', name: '系统模块角色管理权限' },
   { code: 'system.features', name: '系统模块功能管理权限' },
   { code: 'system.menus', name: '系统模块菜单管理权限' },
