@@ -1,0 +1,56 @@
+{
+  "name": "bravo-core",
+  "private": true,
+  "version": "1.0.0",
+  "description": "bravo core package",
+  "main": "./index.js",
+  "scripts": {
+    "compile": "npm run clean && npm run build",
+    "clean": "rimraf build",
+    "build": "tsc -p tsconfig.json",
+    "tslint": "tslint --project tsconfig.json --config tslint.json --type-check --force",
+    "commitlint": "validate-commit-msg",
+    "fix": "tslint --project tsconfig.json --fix --force",
+    "package": "gulp package"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MephistoSunyang/bravo-seed.git"
+  },
+  "author": "Adis.Sun <sunyang08@hotmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MephistoSunyang/bravo-seed/issues"
+  },
+  "homepage": "https://github.com/MephistoSunyang/bravo-seed#readme",
+  "dependencies": {
+    "@nestjs/common": "^7.1.1",
+    "@nestjs/core": "^7.1.1",
+    "@nestjs/typeorm": "^7.1.0",
+    "express": "^4.17.1",
+    "express-http-context": "^1.2.3",
+    "lodash": "^4.17.15",
+    "log4js": "^3.0.6",
+    "mssql": "^6.2.0",
+    "rxjs": "^6.5.5",
+    "typeorm": "file:packages/typeorm"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/lodash": "^4.14.153",
+    "@types/node": "^14.0.5",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "husky": "^4.2.5",
+    "merge2": "^1.4.1",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "tslint-plugin-prettier": "^2.3.0",
+    "typescript": "^3.9.3",
+    "validate-commit-msg": "^2.14.0"
+  }
+}

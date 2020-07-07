@@ -1,0 +1,2 @@
+import { AUDIT_LOG_ACTION_ENUM } from '../enums';
+export declare type IAuditLogAction = AUDIT_LOG_ACTION_ENUM.CREATE | AUDIT_LOG_ACTION_ENUM.UPDATE | AUDIT_LOG_ACTION_ENUM.DELETE;

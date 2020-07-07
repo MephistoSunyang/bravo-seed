@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.REQUEST_METHOD_ENUM = void 0;
+var REQUEST_METHOD_ENUM;
+(function (REQUEST_METHOD_ENUM) {
+    REQUEST_METHOD_ENUM["GET"] = "GET";
+    REQUEST_METHOD_ENUM["POST"] = "POST";
+    REQUEST_METHOD_ENUM["PUT"] = "PUT";
+    REQUEST_METHOD_ENUM["PATCH"] = "PATCH";
+    REQUEST_METHOD_ENUM["DELETE"] = "DELETE";
+    REQUEST_METHOD_ENUM["ALL"] = "ALL";
+    REQUEST_METHOD_ENUM["OPTIONS"] = "OPTIONS";
+    REQUEST_METHOD_ENUM["HEAD"] = "HEAD";
+})(REQUEST_METHOD_ENUM = exports.REQUEST_METHOD_ENUM || (exports.REQUEST_METHOD_ENUM = {}));
