@@ -2,7 +2,7 @@ import { BusinessException, InjectRepositoryService, RepositoryService } from '@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { Connection, FindConditions, In, Like, ObjectType, SelectQueryBuilder } from 'typeorm';
+import { Connection, In, ObjectType, SelectQueryBuilder } from 'typeorm';
 import { CryptoUserService } from '../../crypto';
 import {
   ActionEntity,

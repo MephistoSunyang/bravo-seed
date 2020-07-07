@@ -3,17 +3,17 @@ import { Expose, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
   Length,
-  IsEnum,
 } from 'class-validator';
 import { ExistedValidator, UniqueValidator, VALIDATOR_GROUP_ENUM } from '../../../validator';
 import { BaseModel } from '../../base.model';
 import { RoleEntity, UserEntity } from '../../entities';
-import { RoleModel } from '../role';
 import { USER_PROVIDER_TYPE_ENUM } from '../../enums';
+import { RoleModel } from '../role';
 
 export class UserModel extends BaseModel {
   @ApiProperty()
