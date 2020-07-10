@@ -1,5 +1,5 @@
 import { RepositoryModule } from '@bravo/core';
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { CryptoModule } from '../crypto';
 import {
   ActionController,
@@ -79,6 +79,7 @@ const services = [
 ];
 const providers = [...services];
 
+@Global()
 @Module({
   imports: [...modules],
   controllers,

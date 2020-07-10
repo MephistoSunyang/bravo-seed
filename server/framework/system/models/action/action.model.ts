@@ -30,8 +30,8 @@ export class ActionModel extends BaseModel {
   @Expose()
   @IsString()
   @Length(0, 255)
-  @IsNotEmpty()
   @IsEnum(ACTION_METHOD_ENUM)
+  @IsNotEmpty()
   public method: ACTION_METHOD_ENUM;
 
   @ApiProperty()

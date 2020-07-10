@@ -19,6 +19,7 @@ import { UserId } from '../../passport';
 import { ValidatorPipe } from '../../validator';
 import { Permissions } from '../decorators';
 import { ActionGuard, PermissionGuard } from '../guards';
+import { ISelectOption } from '../interfaces';
 import {
   CreatedUserModel,
   MenuModel,
@@ -43,6 +44,17 @@ export class UserController {
 
   @ApiResponse({
     status: HTTP_STATUS_CODE_ENUM.OK,
+    type: String,
+    isArray: true,
+  })
+  @Get('types')
+  public getUsersTypes(): ISelectOption[] {
+    const providerTypes = this.userService._getUsersTypes();
+    return providerTypes;
+  }
+
+  @ApiResponse({
+    status: HTTP_STATUS_CODE_ENUM.OK,
     type: UserAndCountModel,
   })
   @Get('/andCount')
@@ -62,17 +74,6 @@ export class UserController {
   public async getUsers(@Query() queries: QueryUserModel): Promise<UserModel[]> {
     const userModels = await this.userService._getUsers(queries);
     return userModels;
-  }
-
-  @ApiResponse({
-    status: HTTP_STATUS_CODE_ENUM.OK,
-    type: String,
-    isArray: true,
-  })
-  @Get('types')
-  public async get() {
-    const providerTypes = await this.userService._getUserProviderTypes();
-    return providerTypes;
   }
 
   @ApiResponse({

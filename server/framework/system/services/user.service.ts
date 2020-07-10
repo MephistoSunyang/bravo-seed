@@ -14,7 +14,13 @@ import {
   UserEntity,
   UserProviderEntity,
 } from '../entities';
-import { ACTION_METHOD_ENUM, FEATURE_CLAIM_TYPE_ENUM, ROLE_CLAIM_TYPE_ENUM } from '../enums';
+import {
+  ACTION_METHOD_ENUM,
+  FEATURE_CLAIM_TYPE_ENUM,
+  ROLE_CLAIM_TYPE_ENUM,
+  USER_PROVIDER_TYPE_NAME_ENUM,
+} from '../enums';
+import { ISelectOption } from '../interfaces';
 import {
   CreatedUserModel,
   MenuModel,
@@ -89,7 +95,7 @@ export class UserService {
       usersQueryBuilder.andWhere('users.comment LIKE :comment', { comment });
     }
     if (type) {
-      if (type === 'local') {
+      if (type === 'LOCAL') {
         usersQueryBuilder.where(
           'users.id NOT IN (SELECT userId FROM system.[user-providers] GROUP BY userId)',
         );
@@ -124,6 +130,14 @@ export class UserService {
     return userModels;
   }
 
+  public _getUsersTypes(): ISelectOption[] {
+    const usersTypes = _.chain(USER_PROVIDER_TYPE_NAME_ENUM)
+      .keys()
+      .map((key) => ({ name: USER_PROVIDER_TYPE_NAME_ENUM[key], value: key }))
+      .value();
+    return usersTypes;
+  }
+
   public async _getUsersAndCount(queries: QueryUserAndCountModel): Promise<UserAndCountModel> {
     const offset = (queries.pageNumber - 1) * queries.pageSize;
     const limit = queries.pageSize;
@@ -140,15 +154,6 @@ export class UserService {
     const users = await usersQueryBuilder.getMany();
     const userModels = await this.getUserModels(users);
     return userModels;
-  }
-
-  public async _getUserProviderTypes(): Promise<string[]> {
-    const providerTypes: { type: string }[] = await this.connection
-      .createQueryBuilder(UserProviderEntity, 'providers')
-      .select('type')
-      .groupBy('type')
-      .getRawMany();
-    return _.map(providerTypes, 'type');
   }
 
   public async _getUserById(id: number): Promise<UserModel> {

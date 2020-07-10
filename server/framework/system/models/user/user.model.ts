@@ -76,8 +76,8 @@ export class UserModel extends BaseModel {
   @ApiProperty()
   @Expose()
   @IsArray()
-  @IsOptional()
   @IsEnum(USER_PROVIDER_TYPE_ENUM)
+  @IsOptional()
   public types?: USER_PROVIDER_TYPE_ENUM[];
 
   @ApiProperty({ type: 'string | null', example: null })
