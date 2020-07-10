@@ -15,8 +15,8 @@ steps:
     cd sync
     git clone https://github.com/MephistoSunyang/bravo-seed.git
     git remote add azure https://AdisTeam:ptwrd7n3cjwkchmuwtme4glpn4tyzqw5x6dt6sasuvi57h2kdfja@dev.azure.com/AdisTeam/Bravo%20Seed/_git/Bravo%20Seed
-    git branch -D $(branch)
-    git checkout -b $(branch)
-    git push -d azure $(branch)
-    git push -u azure $(branch) --force
-  displayName: 'synchronization github repository'
+    git branch -D master
+    git checkout -b master
+    git push -d azure master
+    git push -u azure master --force
+  displayName: 'synchronization azure repository master branch'
