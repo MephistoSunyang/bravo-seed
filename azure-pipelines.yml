@@ -3,8 +3,12 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+variables: 
+  branch: 'develop'
+
 trigger:
 - master
+- develop
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -15,8 +19,8 @@ steps:
     cd sync
     git clone https://github.com/MephistoSunyang/bravo-seed.git
     git remote add azure https://AdisTeam:ptwrd7n3cjwkchmuwtme4glpn4tyzqw5x6dt6sasuvi57h2kdfja@dev.azure.com/AdisTeam/Bravo%20Seed/_git/Bravo%20Seed
-    git branch -D $(branch)
-    git checkout -b $(branch)
+    git branch -q $(branch)
+    git checkout -q $(branch)
     git push -d azure $(branch)
     git push -u azure $(branch) --force
   displayName: 'synchronization azure repository'
