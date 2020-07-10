@@ -62,12 +62,6 @@ export class SystemModuleService {
         name: '系统模块功能',
         createdUserId,
       });
-      const rootMenuModel = this.menuRepositoryService.create({
-        group: 'systemAdmin',
-        name: '系统后台管理',
-        icon: 'menu',
-        createdUserId,
-      });
       const menuModels = _.map(SYSTEM_MENU_CONFIG, (config) =>
         this.menuRepositoryService.create({
           group: config.group,
@@ -86,7 +80,6 @@ export class SystemModuleService {
           createdUserId,
         }),
       );
-      const rootMenu = await this.menuRepositoryService.insert(rootMenuModel);
       const [feature, menus, permissions] = await Promise.all([
         this.featureRepositoryService.insert(featureModel),
         this.menuRepositoryService.insertBulk(menuModels),
@@ -97,7 +90,7 @@ export class SystemModuleService {
         type: ROLE_CLAIM_TYPE_ENUM.FEATURE,
         key: _.toString(feature.id),
       });
-      const featureClaimModels = _.chain(_.concat([rootMenu], menus))
+      const featureClaimModels = _.chain(menus)
         .map((menu) =>
           this.featureClaimRepositoryService.create({
             featureId: feature.id,

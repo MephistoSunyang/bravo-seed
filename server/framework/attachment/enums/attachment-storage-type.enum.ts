@@ -1,0 +1,3 @@
+export enum ATTACHMENT_STORAGE_TYPE_ENUM {
+  LOCAL = 'LOCAL',
+}

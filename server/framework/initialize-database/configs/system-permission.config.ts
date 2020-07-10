@@ -10,4 +10,5 @@ export const SYSTEM_PERMISSION_CONFIG: ISystemPermissionConfig[] = [
   { code: 'system.actions', name: '系统模块接口管理权限' },
   { code: 'system.configs', name: '系统模块配置管理权限' },
   { code: 'system.logs', name: '系统模块日志管理权限' },
+  { code: 'system.attachments', name: '系统模块附件管理权限' },
 ];

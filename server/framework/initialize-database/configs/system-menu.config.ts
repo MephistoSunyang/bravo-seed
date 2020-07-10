@@ -3,6 +3,13 @@ import { ISystemMenuConfig } from '../interfaces';
 export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
   {
     group: 'systemAdmin',
+    parentId: 0,
+    sort: 1,
+    name: '系统后台管理',
+    icon: 'menu',
+  },
+  {
+    group: 'systemAdmin',
     parentId: 1,
     sort: 1,
     name: '用户管理',
@@ -72,5 +79,13 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     name: '日志管理',
     icon: 'code',
     path: '/system/logs',
+  },
+  {
+    group: 'systemAdmin',
+    parentId: 0,
+    sort: 2,
+    name: '附件管理',
+    icon: 'paper-clip',
+    path: '/system/attachments',
   },
 ];

@@ -4,5 +4,5 @@ export interface ISystemMenuConfig {
   sort: number;
   name: string;
   icon: string;
-  path: string;
+  path?: string;
 }
