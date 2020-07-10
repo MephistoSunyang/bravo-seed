@@ -81,7 +81,7 @@ let RepositoryService = (() => {
         }
         insert(partialModel, options) {
             return __awaiter(this, void 0, void 0, function* () {
-                const entity = yield this.repository.save(partialModel, options);
+                const entity = yield this.repository.save(this.create(partialModel), options);
                 this.auditLogService.insert(this.metadata, enums_1.AUDIT_LOG_ACTION_ENUM.CREATE, entity);
                 return entity;
             });
@@ -91,7 +91,7 @@ let RepositoryService = (() => {
                 if (partialModels.length === 0) {
                     return [];
                 }
-                const entities = yield this.repository.save(partialModels, options);
+                const entities = yield this.repository.save(this.create(partialModels), options);
                 this.auditLogService.insert(this.metadata, enums_1.AUDIT_LOG_ACTION_ENUM.CREATE, entities);
                 return entities;
             });
@@ -134,6 +134,7 @@ let RepositoryService = (() => {
                 if (!entity) {
                     return;
                 }
+                const cloneEntity = lodash_1.default.clone(entity);
                 let deletedEntity;
                 if (this.isSoftDelete) {
                     const model = this.merge(entity, { [this.softDeleteField]: true });
@@ -142,7 +143,7 @@ let RepositoryService = (() => {
                 }
                 else {
                     deletedEntity = yield this.repository.remove(entity, options);
-                    this.auditLogService.insert(this.metadata, enums_1.AUDIT_LOG_ACTION_ENUM.DELETE, entity);
+                    this.auditLogService.insert(this.metadata, enums_1.AUDIT_LOG_ACTION_ENUM.DELETE, cloneEntity);
                 }
                 return deletedEntity;
             });
