@@ -66,7 +66,7 @@ let AuditLogService = (() => {
                 }
                 catch (error) {
                     logger_1.Logger.log(auditLogModels, 'RepositoryModule AuditLogService');
-                    logger_1.Logger.error(error.message, 'RepositoryModule AuditLogService Error');
+                    logger_1.Logger.error(error.message, 'RepositoryModule AuditLogService');
                 }
             });
         }

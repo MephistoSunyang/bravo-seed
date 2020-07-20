@@ -13,6 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./file.interface"), exports);
 __exportStar(require("./nest-module.interface"), exports);
 __exportStar(require("./object.interface"), exports);
+__exportStar(require("./redirect.interface"), exports);
 __exportStar(require("./request.interface"), exports);
 __exportStar(require("./response.interface"), exports);
 __exportStar(require("./result.interface"), exports);
