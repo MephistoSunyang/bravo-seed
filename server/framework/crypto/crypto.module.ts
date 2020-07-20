@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { CryptoConfigService, CryptoUserService } from './services';
+import { CryptoConfigService, CryptoPassportService, CryptoUserService } from './services';
 
-const services = [CryptoConfigService, CryptoUserService];
+const services = [CryptoConfigService, CryptoPassportService, CryptoUserService];
 const providers = [...services];
 
 @Module({

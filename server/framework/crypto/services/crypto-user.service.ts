@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import crypto from 'crypto-js';
+import _ from 'lodash';
 
 @Injectable()
 export class CryptoUserService {
-  public passwordSecret = String(process.env.SYSTEM_USER_PASSWORD_SECRET);
+  public passwordSecret = _.toString(process.env.SYSTEM_USER_PASSWORD_SECRET);
 
   public encodePassword(password: string): string {
     const keyBuffer = crypto.enc.Utf8.parse(this.passwordSecret);

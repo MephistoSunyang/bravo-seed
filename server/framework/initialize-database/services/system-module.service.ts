@@ -115,7 +115,7 @@ export class SystemModuleService {
       const seconds = moment().diff(beginTime, 'second');
       Logger.log(`System module initialize database complete!It takes ${seconds} seconds.`);
     } catch (error) {
-      Logger.error(error, 'InitializeDatabaseModule SystemModuleService Exception');
+      Logger.error(error, 'InitializeDatabaseModule SystemModuleService');
     }
   }
 }

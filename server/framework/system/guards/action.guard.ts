@@ -38,7 +38,7 @@ export class ActionGuard implements CanActivate {
     if (!validation) {
       Logger.warn(
         `User id "${userId}" not allow use action by method "${method}" and path "${path}"!`,
-        'AuthorizationModule PermissionGuard Exception',
+        'AuthorizationModule PermissionGuard',
       );
       throw new ForbiddenException('Not found action by ActionGuard!');
     }

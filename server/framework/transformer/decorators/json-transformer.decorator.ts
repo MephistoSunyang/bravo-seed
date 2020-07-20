@@ -11,7 +11,7 @@ export const JsonTransformer = (options?: TransformOptions): PropertyDecorator =
       try {
         return JSON.parse(value);
       } catch (error) {
-        Logger.error(error, 'TransformerModule JsonTransformer Exception');
+        Logger.error(error, 'TransformerModule JsonTransformer');
         throw new BadRequestException(`invalid json format "${value}"!`);
       }
     }, options)(target, propertyKey.toString());

@@ -28,17 +28,18 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
+import _ from 'lodash';
 import passport from 'passport';
 import { AppModule } from './app.module';
 
 const bootstrap = async () => {
   try {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
-    const port = process.env.PORT ? Number(process.env.PORT) : 8080;
-    const cookieSecret = String(process.env.COOKIE_SECRET);
-    const sessionSecret = String(process.env.SESSION_SECRET);
-    const rateLimitMax = process.env.PORT ? Number(process.env.RATE_LIMIT_MAX) : 600;
-    const historyExclusions = String(process.env.HISTORY_EXCLUSIONS).split(',');
+    const port = process.env.PORT ? _.toNumber(process.env.PORT) : 8080;
+    const cookieSecret = _.toString(process.env.COOKIE_SECRET);
+    const sessionSecret = _.toString(process.env.SESSION_SECRET);
+    const rateLimitMax = process.env.PORT ? _.toNumber(process.env.RATE_LIMIT_MAX) : 1000;
+    const historyExclusions = _.toString(process.env.HISTORY_EXCLUSIONS).split(',');
 
     app.set('trust proxy', true);
 

@@ -1,4 +1,5 @@
 import { AuditLogEntity, DatabaseLogger, getPath, isLocal, Logger } from '@bravo/core';
+import _ from 'lodash';
 import { ConnectionOptions } from 'typeorm';
 import { LoggerOptions } from 'typeorm/logger/LoggerOptions';
 
@@ -15,11 +16,11 @@ const logging: LoggerOptions = isLocal() ? true : ['warn', 'error', 'schema', 'm
 
 const DATABASE_CONFIG: ConnectionOptions = {
   type: 'mssql',
-  host: String(host),
-  port: Number(port),
-  database: String(database),
-  username: String(username),
-  password: String(password),
+  host: _.toString(host),
+  port: _.toNumber(port),
+  database: _.toString(database),
+  username: _.toString(username),
+  password: _.toString(password),
   extra: {
     instanceName: instanceName ? instanceName : undefined,
   },

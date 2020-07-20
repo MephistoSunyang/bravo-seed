@@ -35,7 +35,7 @@ export class PermissionGuard implements CanActivate {
     if (!validation) {
       Logger.warn(
         `User id "${userId}" not have permission by codes "${codes.join(',')}"!`,
-        'AuthorizationModule PermissionGuard Exception',
+        'AuthorizationModule PermissionGuard',
       );
       throw new ForbiddenException('Not found permission by PermissionGuard!');
     }

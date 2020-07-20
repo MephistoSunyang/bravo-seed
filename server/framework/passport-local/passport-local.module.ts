@@ -1,30 +1,21 @@
 import { DynamicModule, Module, ValueProvider } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { CryptoModule } from '../crypto';
 import { PassportLocalController } from './controllers';
-import { IJwtStrategyOptions, ILocalStrategyOptions } from './interfaces';
+import { ILocalStrategyOptions } from './interfaces';
 import { SetJwtUserIdMiddleware } from './middlewares';
 import { getPassportLocalStrategyOptionsToken } from './passport-local.utils';
 import { LocalStrategy } from './strategies';
+import { PassportModule } from '../passport';
 
 @Module({})
 export class PassportLocalModule {
-  public static forRoot(
-    localStrategyOptions: ILocalStrategyOptions,
-    jwtStrategyOptions: IJwtStrategyOptions,
-  ): DynamicModule {
-    const jwtModule = JwtModule.register(jwtStrategyOptions);
-    const modules = [
-      PassportModule.register({ defaultStrategy: 'local' }),
-      jwtModule,
-      CryptoModule,
-    ];
+  public static forRoot(options: ILocalStrategyOptions): DynamicModule {
+    const modules = [CryptoModule, PassportModule];
     const controllers = [PassportLocalController];
     const middlewares = [SetJwtUserIdMiddleware];
     const strategies = [LocalStrategy];
     const valueProviders: ValueProvider[] = [
-      { provide: getPassportLocalStrategyOptionsToken(), useValue: localStrategyOptions },
+      { provide: getPassportLocalStrategyOptionsToken(), useValue: options },
     ];
     const providers = [...middlewares, ...strategies, ...valueProviders];
     return {
@@ -32,7 +23,7 @@ export class PassportLocalModule {
       controllers,
       imports: [...modules],
       providers,
-      exports: [jwtModule, ...providers],
+      exports: [...providers],
     };
   }
 }
