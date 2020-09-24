@@ -17,7 +17,7 @@ exports.isQuality = () => process.env.ENVIRONMENT &&
 exports.isProduction = () => process.env.ENVIRONMENT &&
     process.env.ENVIRONMENT.toUpperCase() === enums_1.ENVIRONMENT_ENUM.PRODUCTION.toUpperCase();
 exports.getPath = (...paths) => {
-    return exports.getRootPath('server', ...paths);
+    return path_1.default.join(...paths);
 };
 exports.getRootPath = (...paths) => {
     return path_1.default.join(process.cwd(), ...paths);
