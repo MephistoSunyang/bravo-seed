@@ -64,7 +64,7 @@ const bootstrap = async () => {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    app.useStaticAssets(getPath('client'));
+    app.useStaticAssets(getPath(__dirname, 'client'));
     app.useStaticAssets(getRootPath('statics'));
     app.useStaticAssets(getRootPath('resources'), { prefix: '/resources' });
 

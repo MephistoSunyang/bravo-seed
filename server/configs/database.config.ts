@@ -26,9 +26,9 @@ const DATABASE_CONFIG: ConnectionOptions = {
   },
   entities: [
     AuditLogEntity,
-    getPath('framework', '**/**.entity{.ts,.js}'),
-    getPath('plugin', '**/**.entity{.ts,.js}'),
-    getPath('business', '**/**.entity{.ts,.js}'),
+    getPath(__dirname, '../framework', '**/**.entity{.ts,.js}'),
+    getPath(__dirname, '../plugin', '**/**.entity{.ts,.js}'),
+    getPath(__dirname, '../business', '**/**.entity{.ts,.js}'),
   ],
   synchronize: synchronize === 'true',
   logger: new DatabaseLogger(logging),

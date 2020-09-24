@@ -1,11 +1,11 @@
 import { DynamicModule, Module, ValueProvider } from '@nestjs/common';
 import { CryptoModule } from '../crypto';
+import { PassportModule } from '../passport';
 import { PassportLocalController } from './controllers';
 import { ILocalStrategyOptions } from './interfaces';
 import { SetJwtUserIdMiddleware } from './middlewares';
 import { getPassportLocalStrategyOptionsToken } from './passport-local.utils';
 import { LocalStrategy } from './strategies';
-import { PassportModule } from '../passport';
 
 @Module({})
 export class PassportLocalModule {
