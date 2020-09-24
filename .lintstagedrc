@@ -1,0 +1,6 @@
+{
+  "*.ts": [
+    "npm run fix",
+    "git add"
+  ]
+}
