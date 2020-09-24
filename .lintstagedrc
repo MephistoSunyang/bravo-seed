@@ -1,7 +1,7 @@
 {
   "server/**/*.ts": [
-    "tslint --project tsconfig.json --config tslint.json --type-check",
     "tslint --project tsconfig.json --fix --force",
+    "tslint --project tsconfig.json --config tslint.json --type-check",
     "git add"
   ]
 }

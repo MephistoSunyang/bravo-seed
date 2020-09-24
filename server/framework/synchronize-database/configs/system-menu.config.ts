@@ -36,14 +36,6 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
     group: 'systemAdmin',
     parentId: 1,
     sort: 4,
-    name: '功能管理',
-    icon: 'block',
-    path: '/system/features',
-  },
-  {
-    group: 'systemAdmin',
-    parentId: 1,
-    sort: 5,
     name: '菜单管理',
     icon: 'menu',
     path: '/system/menus',
@@ -51,7 +43,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
   {
     group: 'systemAdmin',
     parentId: 1,
-    sort: 6,
+    sort: 5,
     name: '权限管理',
     icon: 'lock',
     path: '/system/permissions',
@@ -59,7 +51,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
   {
     group: 'systemAdmin',
     parentId: 1,
-    sort: 7,
+    sort: 6,
     name: '接口管理',
     icon: 'api',
     path: '/system/actions',
@@ -67,7 +59,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
   {
     group: 'systemAdmin',
     parentId: 1,
-    sort: 8,
+    sort: 7,
     name: '配置管理',
     icon: 'setting',
     path: '/system/configs',
@@ -75,7 +67,7 @@ export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
   {
     group: 'systemAdmin',
     parentId: 1,
-    sort: 9,
+    sort: 8,
     name: '日志管理',
     icon: 'code',
     path: '/system/logs',

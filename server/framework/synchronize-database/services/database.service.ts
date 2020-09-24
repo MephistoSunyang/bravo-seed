@@ -1,7 +1,7 @@
 import { InjectRepositoryService, RepositoryService } from '@bravo/core';
 import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
-import { INITIALIZE_DATABASE_CONFIG } from '../configs';
+import { SYNCHRONIZE_DATABASE_CONFIG } from '../configs';
 import { SynchronizeDatabaseLogEntity } from '../entities';
 import { SYNCHRONIZE_DATABASE_LOG_STATUS_ENUMS } from '../enums';
 import { ISynchronizeDatabaseTaskResult } from '../interfaces';
@@ -29,7 +29,7 @@ export class DatabaseService {
     const logs = await this.synchronizeDatabaseLogRepositoryService.find({
       status: SYNCHRONIZE_DATABASE_LOG_STATUS_ENUMS.SUCCEED,
     });
-    const configs = _.chain(INITIALIZE_DATABASE_CONFIG)
+    const configs = _.chain(SYNCHRONIZE_DATABASE_CONFIG)
       .filter(({ code, version }) => (_.find(logs, { code, version }) ? false : true))
       .filter((config) => (this[config.action] ? true : false))
       .value();
