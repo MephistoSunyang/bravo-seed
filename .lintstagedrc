@@ -1,6 +1,7 @@
 {
-  "*.ts": [
+  "server/**/*.ts": [
     "npm run fix",
+    "npm run tslint",
     "git add"
   ]
 }

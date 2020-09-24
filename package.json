@@ -10,7 +10,7 @@
     "compile": "npm run clean && npm run build",
     "clean": "rimraf dist",
     "build": "tsc -p tsconfig.json",
-    "tslint": "tslint --project tsconfig.json --config tslint.json --type-check --force",
+    "tslint": "tslint --project tsconfig.json --config tslint.json --type-check",
     "fix": "tslint --project tsconfig.json --fix --force"
   },
   "repository": {
