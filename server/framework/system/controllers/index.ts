@@ -1,6 +1,5 @@
 export * from './action.controller';
 export * from './config.controller';
-export * from './feature.controller';
 export * from './log.controller';
 export * from './menu.controller';
 export * from './permission.controller';

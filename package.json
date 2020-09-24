@@ -5,12 +5,12 @@
   "description": "",
   "main": "dist/main.js",
   "scripts": {
-    "start": "node dist/main.js",
-    "debug": "nest start --debug --watch --path=tsconfig.json",
-    "compile": "npm run clean && npm run build",
     "clean": "rimraf dist",
+    "compile": "npm run clean && npm run build",
+    "start": "node dist/main.js",
+    "debug": "npm run clean && nest start --debug --watch --path=tsconfig.json",
     "build": "tsc -p tsconfig.json",
-    "tslint": "tslint --project tsconfig.json --config tslint.json --type-check",
+    "tslint": "tslint --project tsconfig.json --config tslint.json --type-check --force",
     "fix": "tslint --project tsconfig.json --fix --force"
   },
   "repository": {

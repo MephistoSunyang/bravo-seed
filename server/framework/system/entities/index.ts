@@ -1,7 +1,5 @@
 export * from './action.entity';
 export * from './config.entity';
-export * from './feature-claim.entity';
-export * from './feature.entity';
 export * from './menu.entity';
 export * from './permission.entity';
 export * from './role-claim.entity';

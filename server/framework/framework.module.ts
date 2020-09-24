@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AttachmentModule } from './attachment';
-import { InitializeDatabaseModule } from './initialize-database';
+import { SynchronizeDatabaseModule } from './synchronize-database';
 import { SystemModule } from './system';
 import { TransformerModule } from './transformer';
 import { ValidatorModule } from './validator';
 
 const modules = [
   AttachmentModule,
-  InitializeDatabaseModule,
+  SynchronizeDatabaseModule,
   SystemModule,
   TransformerModule,
   ValidatorModule,

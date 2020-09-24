@@ -6,20 +6,13 @@ import { Connection, In, ObjectType, SelectQueryBuilder } from 'typeorm';
 import { CryptoUserService } from '../../crypto';
 import {
   ActionEntity,
-  FeatureClaimEntity,
-  FeatureEntity,
   MenuEntity,
   PermissionEntity,
   RoleClaimEntity,
   UserEntity,
   UserProviderEntity,
 } from '../entities';
-import {
-  ACTION_METHOD_ENUM,
-  FEATURE_CLAIM_TYPE_ENUM,
-  ROLE_CLAIM_TYPE_ENUM,
-  USER_PROVIDER_TYPE_NAME_ENUM,
-} from '../enums';
+import { ACTION_METHOD_ENUM, ROLE_CLAIM_TYPE_ENUM, USER_PROVIDER_TYPE_NAME_ENUM } from '../enums';
 import { ISelectOption } from '../interfaces';
 import {
   CreatedUserModel,
@@ -258,62 +251,10 @@ export class UserService {
       );
   }
 
-  public getFeatureClaimQueryBuilderByUserId<IClaimEntity>(
-    entity: ObjectType<IClaimEntity>,
-    type: FEATURE_CLAIM_TYPE_ENUM,
-    userId: number,
-  ): SelectQueryBuilder<IClaimEntity> {
-    return this.connection
-      .createQueryBuilder(entity, 'claims')
-      .innerJoin(
-        (selectQuery) =>
-          selectQuery.from(FeatureClaimEntity, 'featureClaims').where('type = :type', { type }),
-        'featureClaims',
-        'featureClaims."key" = claims.id',
-      )
-      .innerJoin(
-        (selectQuery) => selectQuery.from(FeatureEntity, 'features').where('isDeleted = 0'),
-        'features',
-        'features.id = featureClaims.featureId',
-      )
-      .innerJoin(
-        (selectQuery) =>
-          selectQuery
-            .from(RoleClaimEntity, 'roleClaims')
-            .where('type = :roleClaimType', { roleClaimType: ROLE_CLAIM_TYPE_ENUM.FEATURE }),
-        'roleClaims',
-        'roleClaims."key" = features.id',
-      )
-      .innerJoin(
-        (selectQuery) =>
-          selectQuery
-            .from(UserEntity, 'users')
-            .select('roles.id', 'id')
-            .leftJoin('users.roles', 'roles')
-            .where('users.isDeleted = 0')
-            .andWhere('roles.isDeleted = 0')
-            .andWhere('users.id = :userId', { userId }),
-        'roles',
-        'roles.id = roleClaims.roleId',
-      );
-  }
-
-  public getFeaturesByUserId(userId: number, codes?: string[]): Promise<FeatureEntity[]> {
-    const queryBuilder = this.getRoleClaimsQueryBuilderByUserId(
-      FeatureEntity,
-      ROLE_CLAIM_TYPE_ENUM.FEATURE,
-      userId,
-    );
-    if (codes) {
-      queryBuilder.where('claims.code IN (:codes)', { codes: codes.join(',') });
-    }
-    return queryBuilder.getMany();
-  }
-
   public getMenusByUserId(userId: number, groups?: string[]): Promise<MenuEntity[]> {
-    const queryBuilder = this.getFeatureClaimQueryBuilderByUserId(
+    const queryBuilder = this.getRoleClaimsQueryBuilderByUserId(
       MenuEntity,
-      FEATURE_CLAIM_TYPE_ENUM.MENU,
+      ROLE_CLAIM_TYPE_ENUM.MENU,
       userId,
     );
     if (groups) {
@@ -323,9 +264,9 @@ export class UserService {
   }
 
   public getPermissionsByUserId(userId: number, codes?: string[]): Promise<PermissionEntity[]> {
-    const queryBuilder = this.getFeatureClaimQueryBuilderByUserId(
+    const queryBuilder = this.getRoleClaimsQueryBuilderByUserId(
       PermissionEntity,
-      FEATURE_CLAIM_TYPE_ENUM.PERMISSION,
+      ROLE_CLAIM_TYPE_ENUM.PERMISSION,
       userId,
     );
     if (codes) {
@@ -339,9 +280,9 @@ export class UserService {
     method: ACTION_METHOD_ENUM,
     path: string,
   ): Promise<ActionEntity[]> {
-    const queryBuilder = this.getFeatureClaimQueryBuilderByUserId(
+    const queryBuilder = this.getRoleClaimsQueryBuilderByUserId(
       ActionEntity,
-      FEATURE_CLAIM_TYPE_ENUM.ACTION,
+      ROLE_CLAIM_TYPE_ENUM.ACTION,
       userId,
     );
     if (method && path) {

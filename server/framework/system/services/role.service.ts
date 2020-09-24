@@ -1,13 +1,22 @@
 import { InjectRepositoryService, RepositoryService } from '@bravo/core';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { FindConditions, In, Like } from 'typeorm';
-import { FeatureEntity, RoleClaimEntity, RoleEntity } from '../entities';
+import { Connection, FindConditions, In, Like, ObjectType } from 'typeorm';
+import {
+  ActionEntity,
+  MenuEntity,
+  PermissionEntity,
+  RoleClaimEntity,
+  RoleEntity,
+} from '../entities';
 import { ROLE_CLAIM_TYPE_ENUM } from '../enums';
 import { IClaimColumnOptions, IRoleClaimOptions } from '../interfaces';
 import {
+  ActionModel,
   CreatedRoleModel,
-  FeatureModel,
+  MenuModel,
+  PermissionModel,
   QueryRoleAndCountModel,
   QueryRoleModel,
   RoleAndCountModel,
@@ -26,12 +35,18 @@ export class RoleService {
   };
 
   constructor(
+    @InjectConnection()
+    private readonly connection: Connection,
     @InjectRepositoryService(RoleEntity)
     private readonly roleRepositoryService: RepositoryService<RoleEntity>,
     @InjectRepositoryService(RoleClaimEntity)
     private readonly roleClaimRepositoryService: RepositoryService<RoleClaimEntity>,
-    @InjectRepositoryService(FeatureEntity)
-    private readonly featureRepositoryService: RepositoryService<FeatureEntity>,
+    @InjectRepositoryService(MenuEntity)
+    private readonly menuRepositoryService: RepositoryService<MenuEntity>,
+    @InjectRepositoryService(PermissionEntity)
+    private readonly permissionRepositoryService: RepositoryService<PermissionEntity>,
+    @InjectRepositoryService(ActionEntity)
+    private readonly actionRepositoryService: RepositoryService<ActionEntity>,
     private readonly modelService: ModelService,
     private readonly claimService: ClaimService,
   ) {}
@@ -92,7 +107,12 @@ export class RoleService {
   public async _createRole(createdRoleModel: CreatedRoleModel): Promise<RoleModel> {
     const role = await this.roleRepositoryService.insert(createdRoleModel);
     await this.createRoleClaimsByRoleId(role.id, {
-      features: { type: ROLE_CLAIM_TYPE_ENUM.FEATURE, collections: createdRoleModel.features },
+      menus: { type: ROLE_CLAIM_TYPE_ENUM.MENU, collections: createdRoleModel.menus },
+      permissions: {
+        type: ROLE_CLAIM_TYPE_ENUM.PERMISSION,
+        collections: createdRoleModel.permissions,
+      },
+      actions: { type: ROLE_CLAIM_TYPE_ENUM.ACTION, collections: createdRoleModel.actions },
     });
     const roleModel = this.mapper(role);
     return roleModel;
@@ -104,7 +124,12 @@ export class RoleService {
       throw new NotFoundException(`Not found system role by id "${id}"!`);
     }
     await this.createRoleClaimsByRoleId(role.id, {
-      features: { type: ROLE_CLAIM_TYPE_ENUM.FEATURE, collections: updatedRoleModel.features },
+      menus: { type: ROLE_CLAIM_TYPE_ENUM.MENU, collections: updatedRoleModel.menus },
+      permissions: {
+        type: ROLE_CLAIM_TYPE_ENUM.PERMISSION,
+        collections: updatedRoleModel.permissions,
+      },
+      actions: { type: ROLE_CLAIM_TYPE_ENUM.ACTION, collections: updatedRoleModel.actions },
     });
     const roleModel = this.mapper(role);
     return roleModel;
@@ -115,7 +140,11 @@ export class RoleService {
     if (!role) {
       throw new NotFoundException(`Not found role by id "${id}"!`);
     }
-    await this.deleteRoleClaimsByRoleId(role.id, [ROLE_CLAIM_TYPE_ENUM.FEATURE]);
+    await this.deleteRoleClaimsByRoleId(role.id, [
+      ROLE_CLAIM_TYPE_ENUM.MENU,
+      ROLE_CLAIM_TYPE_ENUM.PERMISSION,
+      ROLE_CLAIM_TYPE_ENUM.ACTION,
+    ]);
     const roleModel = this.mapper(role);
     return roleModel;
   }
@@ -162,32 +191,79 @@ export class RoleService {
     }
     const roleIds = _.map(roles, 'id');
     const claims = await this.roleClaimRepositoryService.find({
-      type: In([ROLE_CLAIM_TYPE_ENUM.FEATURE]),
+      type: In([
+        ROLE_CLAIM_TYPE_ENUM.MENU,
+        ROLE_CLAIM_TYPE_ENUM.PERMISSION,
+        ROLE_CLAIM_TYPE_ENUM.ACTION,
+      ]),
       roleId: In(roleIds),
     });
     if (claims.length === 0) {
       return this.mapper(roles);
     }
-    const [featureIds] = [
-      _.chain(claims)
-        .filter({ type: ROLE_CLAIM_TYPE_ENUM.FEATURE })
-        .map((claim) => _.toNumber(claim.key))
-        .value(),
-    ];
-    const [features] = await Promise.all([this.featureRepositoryService.findByIds(featureIds)]);
-    const [roleModels, featureModels] = [
+    const menuIds: number[] = [];
+    const permissionIds: number[] = [];
+    const actionIds: number[] = [];
+    _.each(claims, (claim) => {
+      switch (claim.type) {
+        case ROLE_CLAIM_TYPE_ENUM.MENU:
+          menuIds.push(_.toNumber(claim.key));
+          break;
+        case ROLE_CLAIM_TYPE_ENUM.PERMISSION:
+          permissionIds.push(_.toNumber(claim.key));
+          break;
+        case ROLE_CLAIM_TYPE_ENUM.ACTION:
+          actionIds.push(_.toNumber(claim.key));
+          break;
+        default:
+          break;
+      }
+    });
+    const [menus, permissions, actions] = await Promise.all([
+      this.menuRepositoryService.findByIds(menuIds),
+      this.permissionRepositoryService.findByIds(permissionIds),
+      this.actionRepositoryService.findByIds(actionIds),
+    ]);
+    const [roleModels, menuModels, permissionModels, actionModels] = [
       this.mapper(roles),
-      this.modelService.mapper(FeatureModel, features),
+      this.modelService.mapper(MenuModel, menus),
+      this.modelService.mapper(PermissionModel, permissions),
+      this.modelService.mapper(ActionModel, actions),
     ];
     _.forEach(roleModels, (roleModel) => {
-      const roleFeatureIds = _.chain(claims)
-        .filter({ type: ROLE_CLAIM_TYPE_ENUM.FEATURE, roleId: roleModel.id })
-        .map((claim) => _.toNumber(claim.key))
+      const roleMenus: MenuModel[] = [];
+      const rolePermissions: PermissionModel[] = [];
+      const roleActions: ActionModel[] = [];
+      _.chain(claims)
+        .filter({ roleId: roleModel.id })
+        .each((claim) => {
+          switch (claim.type) {
+            case ROLE_CLAIM_TYPE_ENUM.MENU:
+              const menuModel = _.find(menuModels, { id: _.toNumber(claim.key) });
+              if (menuModel) {
+                roleMenus.push(menuModel);
+              }
+              break;
+            case ROLE_CLAIM_TYPE_ENUM.PERMISSION:
+              const permissionModel = _.find(permissionModels, { id: _.toNumber(claim.key) });
+              if (permissionModel) {
+                rolePermissions.push(permissionModel);
+              }
+              break;
+            case ROLE_CLAIM_TYPE_ENUM.ACTION:
+              const actionModel = _.find(actionModels, { id: _.toNumber(claim.key) });
+              if (actionModel) {
+                roleActions.push(actionModel);
+              }
+              break;
+            default:
+              break;
+          }
+        })
         .value();
-      const roleFeatures = _.chain(featureModels)
-        .filter((featureModel) => _.includes(roleFeatureIds, featureModel.id))
-        .value();
-      roleModel.features = roleFeatures;
+      roleModel.menus = roleMenus;
+      roleModel.permissions = rolePermissions;
+      roleModel.actions = roleActions;
     });
     return roleModels;
   }
@@ -206,5 +282,89 @@ export class RoleService {
       throw new NotFoundException(`Not found system role by code "${code}"!`);
     }
     return role;
+  }
+
+  public async getClaimsByRoleConditions<IEntity>(
+    entity: ObjectType<IEntity>,
+    roleClaimType: ROLE_CLAIM_TYPE_ENUM,
+    conditions: FindConditions<RoleEntity>,
+  ): Promise<IEntity[]> {
+    const roles = await this.roleRepositoryService.find(conditions);
+    if (roles.length === 0) {
+      return [];
+    }
+    const roleIds = _.map(roles, 'id');
+    const repository = this.connection.getRepository(entity);
+    const query = repository
+      .createQueryBuilder('claims')
+      .innerJoin(
+        (subQuery) =>
+          subQuery
+            .from(RoleClaimEntity, 'roleClaims')
+            .where('type = :type', { type: roleClaimType }),
+        'roleClaims',
+        'roleClaims.key = claims.id',
+      )
+      .innerJoin(
+        (subQuery) =>
+          subQuery.from(RoleEntity, 'roles').whereInIds(roleIds).andWhere('isDeleted = 0'),
+        'roles',
+        'roles.id = roleClaims.roleId',
+      );
+    if (repository.metadata.deleteColumn) {
+      query.where(`${repository.metadata.deleteColumn.databaseName} = 0`);
+    }
+    const claims = await query.getMany();
+    return claims;
+  }
+
+  public async getMenusByRoleId(id: number) {
+    const menus = await this.getClaimsByRoleConditions(MenuEntity, ROLE_CLAIM_TYPE_ENUM.MENU, {
+      id,
+    });
+    return menus;
+  }
+
+  public async getMenusByRoleCode(code: string) {
+    const menus = await this.getClaimsByRoleConditions(MenuEntity, ROLE_CLAIM_TYPE_ENUM.MENU, {
+      code,
+    });
+    return menus;
+  }
+
+  public async getPermissionsByRoleCode(code: string) {
+    const menus = await this.getClaimsByRoleConditions(
+      PermissionEntity,
+      ROLE_CLAIM_TYPE_ENUM.PERMISSION,
+      { code },
+    );
+    return menus;
+  }
+
+  public async getPermissionsByRoleId(id: number) {
+    const menus = await this.getClaimsByRoleConditions(
+      PermissionEntity,
+      ROLE_CLAIM_TYPE_ENUM.PERMISSION,
+      { id },
+    );
+    return menus;
+  }
+
+  public async getActionsByRoleId(id: number) {
+    const actions = await this.getClaimsByRoleConditions(
+      ActionEntity,
+      ROLE_CLAIM_TYPE_ENUM.ACTION,
+      { id },
+    );
+    return actions;
+  }
+
+  public async getActionsByRoleCode(code: string) {
+    const actions = await this.getClaimsByRoleConditions(
+      ActionEntity,
+      ROLE_CLAIM_TYPE_ENUM.ACTION,
+      { code },
+    );
+    return actions;
   }
 }

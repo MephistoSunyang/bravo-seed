@@ -1,8 +1,11 @@
+import { RepositoryModule } from '@bravo/core';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { CryptoModule } from '../crypto';
+import { SynchronizeDatabaseLogEntity } from './entities';
 import { DatabaseService, SystemModuleService } from './services';
 
-const modules = [CryptoModule];
+const entities = [SynchronizeDatabaseLogEntity];
+const modules = [RepositoryModule.forFeature(entities), CryptoModule];
 const services = [DatabaseService, SystemModuleService];
 const providers = [...services];
 
@@ -10,10 +13,10 @@ const providers = [...services];
   imports: [...modules],
   providers,
 })
-export class InitializeDatabaseModule implements OnModuleInit {
+export class SynchronizeDatabaseModule implements OnModuleInit {
   constructor(private readonly databaseService: DatabaseService) {}
 
   public onModuleInit(): void {
-    this.databaseService.initialize();
+    this.databaseService.synchronize();
   }
 }
