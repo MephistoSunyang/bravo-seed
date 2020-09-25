@@ -11,8 +11,8 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { PassportService } from '../../passport';
 
-@Controller('auth/v1/lilly')
-export class PassportLillyController {
+@Controller('auth/v1/azure')
+export class PassportAzureController {
   constructor(private readonly passportService: PassportService) {}
   @Get('accessToken')
   @UseGuards(AuthGuard('azuread-openidconnect'))

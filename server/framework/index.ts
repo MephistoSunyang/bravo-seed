@@ -2,7 +2,7 @@ export * from './attachment';
 export * from './crypto';
 export * from './metadata-storage';
 export * from './passport';
-export * from './passport-lilly';
+export * from './passport-azure';
 export * from './passport-local';
 export * from './synchronize-database';
 export * from './system';

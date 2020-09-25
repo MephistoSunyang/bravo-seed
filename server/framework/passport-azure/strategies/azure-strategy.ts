@@ -3,13 +3,13 @@ import { BadRequestException, Inject } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { IProfile, OIDCStrategy } from 'passport-azure-ad';
 import { UserEntity, UserProviderEntity, USER_PROVIDER_TYPE_ENUM } from '../../system';
-import { ILillyStrategyOptions } from '../interfaces';
-import { getPassportLillyStrategyOptionsToken } from '../passport-lilly.utils';
+import { IAzureStrategyOptions } from '../interfaces';
+import { getPassportAzureStrategyOptionsToken } from '../passport-azure.utils';
 
-export class LillyStrategy extends PassportStrategy(OIDCStrategy) {
+export class AzureStrategy extends PassportStrategy(OIDCStrategy) {
   constructor(
-    @Inject(getPassportLillyStrategyOptionsToken())
-    protected readonly options: ILillyStrategyOptions,
+    @Inject(getPassportAzureStrategyOptionsToken())
+    protected readonly options: IAzureStrategyOptions,
     @InjectRepositoryService(UserEntity)
     private readonly userRepositoryService: RepositoryService<UserEntity>,
     @InjectRepositoryService(UserProviderEntity)
@@ -24,7 +24,7 @@ export class LillyStrategy extends PassportStrategy(OIDCStrategy) {
       throw new BadRequestException(`Not found email by validate!`);
     }
     const userProvider = await this.userProviderRepositoryService.findOne({
-      type: USER_PROVIDER_TYPE_ENUM.LILLY,
+      type: USER_PROVIDER_TYPE_ENUM.AZURE,
       key: email,
     });
     if (!userProvider) {

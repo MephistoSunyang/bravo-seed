@@ -9,13 +9,13 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { BusinessModule } from './business';
 import {
   DATABASE_CONFIG,
+  PASSPORT_AZURE_STRATEGY_CONFIG,
   PASSPORT_JWT_STRATEGY_CONFIG,
-  PASSPORT_LILLY_STRATEGY_CONFIG,
   PASSPORT_LOCAL_STRATEGY_CONFIG,
 } from './configs';
 import {
   FrameworkModule,
-  PassportLillyModule,
+  PassportAzureModule,
   PassportLocalModule,
   PassportModule,
   SetJwtUserIdMiddleware,
@@ -30,7 +30,7 @@ const modules = [
   DataBaseModule.forRoot(DATABASE_CONFIG),
   PassportModule.forRoot(PASSPORT_JWT_STRATEGY_CONFIG),
   PassportLocalModule.forRoot(PASSPORT_LOCAL_STRATEGY_CONFIG),
-  PassportLillyModule.forRoot(PASSPORT_LILLY_STRATEGY_CONFIG),
+  PassportAzureModule.forRoot(PASSPORT_AZURE_STRATEGY_CONFIG),
 ];
 
 @Module({
