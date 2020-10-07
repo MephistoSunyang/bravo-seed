@@ -12,7 +12,7 @@ import { RefreshTokenModel } from '../models';
 
 @Injectable()
 export class PassportJwtService {
-  public tokenCacheExpiresIn = 30 * 24 * 60 * 60;
+  public tokenCacheExpiresIn = 1 * 30 * 24 * 60 * 60;
   public ticketCacheExpiresIn = 10 * 60;
 
   constructor(

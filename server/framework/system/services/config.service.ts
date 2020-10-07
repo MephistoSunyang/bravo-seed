@@ -2,6 +2,7 @@ import { InjectRepositoryService, RepositoryService } from '@bravo/core';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import _ from 'lodash';
 import { FindConditions, Like } from 'typeorm';
+import { CacheService } from '../../cache';
 import { CryptoConfigService } from '../../crypto';
 import { ConfigEntity } from '../entities';
 import { CONFIG_CONTENT_TYPE_ENUM } from '../enums';
@@ -17,11 +18,14 @@ import { ModelService } from './model.service';
 
 @Injectable()
 export class ConfigService {
+  public configCacheExpiresIn = 1 * 30 * 24 * 60 * 60;
+
   constructor(
     @InjectRepositoryService(ConfigEntity)
     private readonly configRepositoryService: RepositoryService<ConfigEntity>,
     private readonly modelService: ModelService,
     private readonly cryptoConfigService: CryptoConfigService,
+    private readonly cacheService: CacheService,
   ) {}
 
   private mapper(configs: ConfigEntity[]): ConfigModel[];
@@ -116,6 +120,14 @@ export class ConfigService {
     return where;
   }
 
+  private upsertConfigCache(config: ConfigEntity): Promise<void> {
+    return this.cacheService.set('config', config.code, config, this.configCacheExpiresIn);
+  }
+
+  private removeConfigCache(config: ConfigEntity): Promise<void> {
+    return this.cacheService.remove('config', config.code);
+  }
+
   public async _getConfigsAndCount(
     queries: QueryConfigAndCountModel,
   ): Promise<ConfigAndCountModel> {
@@ -155,6 +167,7 @@ export class ConfigService {
       content: this.getContent(content, contentEncrypted),
     });
     const config = await this.configRepositoryService.insert(model);
+    this.upsertConfigCache(config);
     const configModel = this.mapper(config);
     return configModel;
   }
@@ -172,6 +185,7 @@ export class ConfigService {
     if (!config) {
       throw new NotFoundException(`Not found system config by id "${id}"!`);
     }
+    this.upsertConfigCache(config);
     const configModel = this.mapper(config);
     return configModel;
   }
@@ -181,6 +195,7 @@ export class ConfigService {
     if (!config) {
       throw new NotFoundException(`Not found system config by id "${id}"!`);
     }
+    this.removeConfigCache(config);
     const configModel = this.mapper(config);
     return configModel;
   }
@@ -194,10 +209,23 @@ export class ConfigService {
   }
 
   public async getConfigContentByCodeOrFail<IContent = any>(code: string): Promise<IContent> {
-    const config = await this.configRepositoryService.findOne({ code });
-    if (!config) {
-      throw new BadRequestException(`Not found system config by code "${code}"!`);
+    const cache = await this.cacheService.get<ConfigEntity>('config', code);
+    if (cache) {
+      return this.parseContent<IContent>(cache.content, cache.contentEncrypted);
+    } else {
+      const config = await this.configRepositoryService.findOne({ code });
+      if (!config) {
+        throw new BadRequestException(`Not found system config by code "${code}"!`);
+      }
+      this.upsertConfigCache(config);
+      return this.parseContent<IContent>(config.content, config.contentEncrypted);
     }
-    return this.parseContent<IContent>(config.content, config.contentEncrypted);
+  }
+
+  public async initializeConfigCaches(): Promise<void> {
+    const configs = await this.configRepositoryService.find();
+    _.each(configs, (config) => {
+      this.upsertConfigCache(config);
+    });
   }
 }

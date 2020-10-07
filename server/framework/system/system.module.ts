@@ -1,5 +1,5 @@
 import { RepositoryModule } from '@bravo/core';
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, OnModuleInit } from '@nestjs/common';
 import {
   ActionController,
   ConfigController,
@@ -77,4 +77,10 @@ const providers = [...services];
   providers,
   exports: [...providers],
 })
-export class SystemModule {}
+export class SystemModule implements OnModuleInit {
+  constructor(private readonly configService: ConfigService) {}
+
+  public async onModuleInit(): Promise<void> {
+    await this.configService.initializeConfigCaches();
+  }
+}

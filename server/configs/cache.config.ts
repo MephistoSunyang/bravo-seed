@@ -17,7 +17,7 @@ const CACHE_CONFIG: RedisModuleOptions = {
 };
 
 if (isLocal()) {
-  Logger.debug(CACHE_CONFIG, 'Redis Config');
+  Logger.debug(CACHE_CONFIG, 'Cache Config');
 }
 
 export { CACHE_CONFIG };
