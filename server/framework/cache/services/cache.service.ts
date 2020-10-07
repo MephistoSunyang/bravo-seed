@@ -14,8 +14,12 @@ export class CacheService {
     this.client = redisService.getClient(name);
   }
 
+  private getKey(module: string, key: string): string {
+    return `${module}-${key}`;
+  }
+
   public async set(module: string, key: string, value: any, expiresIn?: number): Promise<void> {
-    const redisKey = `${module}-${key}`;
+    const redisKey = this.getKey(module, key);
     const redisItem: ICacheItem = {
       type: typeof value,
       content: typeof value === 'object' ? JSON.stringify(value) : _.toString(value),
@@ -31,7 +35,7 @@ export class CacheService {
   }
 
   public async get<IValue = IObject>(module: string, key: string): Promise<IValue | null> {
-    const redisKey = `${module}-${key}`;
+    const redisKey = this.getKey(module, key);
     const redisValue = await this.client.get(redisKey);
     if (redisValue === null) {
       return null;
@@ -64,7 +68,7 @@ export class CacheService {
   }
 
   public async remove(module: string, key: string): Promise<void> {
-    const redisKey = `${module}-${key}`;
+    const redisKey = this.getKey(module, key);
     await this.client.set(redisKey, '', 'PX', 1);
   }
 }
