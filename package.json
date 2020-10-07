@@ -47,6 +47,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "moment": "^2.27.0",
+    "nestjs-redis": "^1.2.8",
     "passport": "^0.4.1",
     "passport-azure-ad": "^4.3.0",
     "passport-jwt": "^4.0.0",

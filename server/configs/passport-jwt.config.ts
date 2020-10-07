@@ -1,14 +1,13 @@
-import { isLocal } from '@bravo/core';
-import { Logger } from '@nestjs/common';
+import { isLocal, Logger } from '@bravo/core';
 import _ from 'lodash';
 import { IJwtStrategyOptions } from '../framework';
 
-const { PASSPORT_JWT_SECRET: secret } = process.env;
+const { ACCESS_TOKEN_SECRET: secret, ACCESS_TOKEN_EXPIRES_IN: expiresIn } = process.env;
 
 const PASSPORT_JWT_STRATEGY_CONFIG: IJwtStrategyOptions = {
   secret: _.toString(secret),
   signOptions: {
-    expiresIn: '1d',
+    expiresIn: `${expiresIn ? _.toNumber(expiresIn) : 1}d`,
   },
 };
 

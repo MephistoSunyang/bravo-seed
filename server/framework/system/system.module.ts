@@ -1,6 +1,5 @@
 import { RepositoryModule } from '@bravo/core';
 import { Global, Module } from '@nestjs/common';
-import { CryptoModule } from '../crypto';
 import {
   ActionController,
   ConfigController,
@@ -46,7 +45,7 @@ const entities = [
   UserProviderEntity,
   UserEntity,
 ];
-const modules = [RepositoryModule.forFeature(entities), CryptoModule];
+const modules = [RepositoryModule.forFeature(entities)];
 const controllers = [
   ActionController,
   ConfigController,

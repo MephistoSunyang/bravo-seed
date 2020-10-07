@@ -1,10 +1,9 @@
-import { getCurrentUserId, IRequest } from '@bravo/core';
+import { getCurrentUserId, IRequest, Logger } from '@bravo/core';
 import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
   Injectable,
-  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';

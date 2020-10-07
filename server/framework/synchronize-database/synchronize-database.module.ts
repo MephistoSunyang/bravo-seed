@@ -1,11 +1,10 @@
 import { RepositoryModule } from '@bravo/core';
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CryptoModule } from '../crypto';
 import { SynchronizeDatabaseLogEntity } from './entities';
 import { DatabaseService, SystemModuleService } from './services';
 
 const entities = [SynchronizeDatabaseLogEntity];
-const modules = [RepositoryModule.forFeature(entities), CryptoModule];
+const modules = [RepositoryModule.forFeature(entities)];
 const services = [DatabaseService, SystemModuleService];
 const providers = [...services];
 

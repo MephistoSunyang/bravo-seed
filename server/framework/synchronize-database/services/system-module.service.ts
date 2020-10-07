@@ -1,5 +1,5 @@
-import { getErrorMessage, InjectRepositoryService, RepositoryService } from '@bravo/core';
-import { Injectable, Logger } from '@nestjs/common';
+import { getErrorMessage, InjectRepositoryService, Logger, RepositoryService } from '@bravo/core';
+import { Injectable } from '@nestjs/common';
 import _ from 'lodash';
 import moment from 'moment';
 import { CryptoUserService } from '../../crypto';
@@ -103,7 +103,7 @@ export class SystemModuleService {
         status: SYNCHRONIZE_DATABASE_LOG_STATUS_ENUMS.SUCCEED,
       };
     } catch (error) {
-      Logger.error(error, 'InitializeDatabaseModule SystemModuleService');
+      Logger.error(error, 'InitializeDatabaseModule SystemModuleService Exception');
       return {
         status: SYNCHRONIZE_DATABASE_LOG_STATUS_ENUMS.FAILED,
         exception: getErrorMessage(error),

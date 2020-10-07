@@ -1,5 +1,4 @@
-import { isLocal } from '@bravo/core';
-import { Logger } from '@nestjs/common';
+import { isLocal, Logger } from '@bravo/core';
 import { ILocalStrategyOptions } from '../framework';
 
 const {
