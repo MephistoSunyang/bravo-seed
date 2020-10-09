@@ -19,9 +19,9 @@ import { UserId } from '../../passport';
 import { ValidatorPipe } from '../../validator';
 import { Permissions } from '../decorators';
 import { ActionGuard, PermissionGuard } from '../guards';
-import { ISelectOption } from '../interfaces';
 import {
   CreatedUserModel,
+  CreateUserPasswordModel,
   MenuModel,
   QueryCurrentUserMenuModel,
   QueryUserAndCountModel,
@@ -41,17 +41,6 @@ import { UserService } from '../services';
 @Permissions('system.users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @ApiResponse({
-    status: HTTP_STATUS_CODE_ENUM.OK,
-    type: String,
-    isArray: true,
-  })
-  @Get('types')
-  public getUsersTypes(): ISelectOption[] {
-    const providerTypes = this.userService._getUsersTypes();
-    return providerTypes;
-  }
 
   @ApiResponse({
     status: HTTP_STATUS_CODE_ENUM.OK,
@@ -135,14 +124,27 @@ export class UserController {
 
   @ApiResponse({
     status: HTTP_STATUS_CODE_ENUM.OK,
+    type: CreateUserPasswordModel,
+  })
+  @Post(':id/password')
+  public async createUserPassword(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() createUserPasswordModel: CreateUserPasswordModel,
+  ): Promise<UserModel> {
+    const userModel = await this.userService._createUserPassword(id, createUserPasswordModel);
+    return userModel;
+  }
+
+  @ApiResponse({
+    status: HTTP_STATUS_CODE_ENUM.OK,
     type: ReplaceUserPasswordModel,
   })
   @Patch(':id/password')
   public async replaceUserPassword(
     @Param('id', new ParseIntPipe()) id: number,
-    @Body() body: ReplaceUserPasswordModel,
+    @Body() replaceUserPasswordModel: ReplaceUserPasswordModel,
   ): Promise<UserModel> {
-    const userModel = await this.userService._replacePassword(id, body.password, body.newPassword);
+    const userModel = await this.userService._replaceUserPassword(id, replaceUserPasswordModel);
     return userModel;
   }
 

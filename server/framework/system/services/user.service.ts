@@ -2,27 +2,30 @@ import { BusinessException, InjectRepositoryService, RepositoryService } from '@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
 import _ from 'lodash';
-import { Connection, In, ObjectType, SelectQueryBuilder } from 'typeorm';
+import { Connection, ObjectType, SelectQueryBuilder } from 'typeorm';
 import { CryptoUserService } from '../../crypto';
 import {
   ActionEntity,
   MenuEntity,
   PermissionEntity,
   RoleClaimEntity,
+  RoleEntity,
   UserEntity,
   UserProviderEntity,
 } from '../entities';
-import { ACTION_METHOD_ENUM, ROLE_CLAIM_TYPE_ENUM, USER_PROVIDER_TYPE_NAME_ENUM } from '../enums';
-import { ISelectOption } from '../interfaces';
+import { ACTION_METHOD_ENUM, ROLE_CLAIM_TYPE_ENUM } from '../enums';
 import {
   CreatedUserModel,
+  CreateUserPasswordModel,
   MenuModel,
   QueryCurrentUserMenuModel,
   QueryUserAndCountModel,
   QueryUserModel,
+  ReplaceUserPasswordModel,
   UpdatedUserModel,
   UserAndCountModel,
   UserModel,
+  UserProviderModel,
 } from '../models';
 import { ModelService } from './model.service';
 
@@ -55,13 +58,18 @@ export class UserService {
       email,
       emailConfirmed,
       comment,
-      type,
       roleId,
     } = queries;
     const usersQueryBuilder = this.userRepositoryService
       .createQueryBuilder('users')
-      .leftJoin(UserProviderEntity, 'providers', 'providers.userId = users.id')
-      .leftJoinAndSelect('users.roles', 'roles', 'roles.isDeleted = 0')
+      .leftJoinAndMapMany(
+        'users.providers',
+        UserProviderEntity,
+        'providers',
+        'providers.userId = users.id',
+      )
+      .leftJoin('user-role-mappings', 'userRoleMappings', 'userRoleMappings.userId = users.id')
+      .leftJoinAndMapMany('users.roles', RoleEntity, 'roles', 'roles.id = userRoleMappings.roleId')
       .where('users.isDeleted = 0');
     if (username) {
       usersQueryBuilder.andWhere('users.username LIKE :username', { username });
@@ -87,15 +95,6 @@ export class UserService {
     if (comment) {
       usersQueryBuilder.andWhere('users.comment LIKE :comment', { comment });
     }
-    if (type) {
-      if (type === 'LOCAL') {
-        usersQueryBuilder.where(
-          'users.id NOT IN (SELECT userId FROM system.[user-providers] GROUP BY userId)',
-        );
-      } else {
-        usersQueryBuilder.andWhere('providers.type = :type', { type });
-      }
-    }
     if (roleId) {
       usersQueryBuilder.andWhere('roles.id = :roleId', { roleId });
     }
@@ -103,32 +102,31 @@ export class UserService {
     return usersQueryBuilder;
   }
 
+  private async updateUserProviders(
+    userId: number,
+    providerModels: UserProviderModel[],
+  ): Promise<UserProviderEntity[]> {
+    if (providerModels.length === 0) {
+      return [];
+    }
+    await this.userProviderRepositoryService.deleteBulk({ userId });
+    const userProviderModels = _.map(providerModels, (providerModel) =>
+      this.userProviderRepositoryService.merge(providerModel, { userId }),
+    );
+    const userProviders = await this.userProviderRepositoryService.insertBulk(userProviderModels);
+    return userProviders;
+  }
+
   private async getUserModels(users: UserEntity[]): Promise<UserModel[]> {
     if (users.length === 0) {
       return [];
     }
-    const userIds = _.map(users, 'id');
-    const userProviders = await this.userProviderRepositoryService.find({
-      userId: In(userIds),
-    });
     const userModels = this.mapper(users);
-    userModels.forEach((userModel) => {
-      const types = _.chain(userProviders)
-        .filter({ userId: userModel.id })
-        .map('type')
-        .uniq()
-        .value();
-      userModel.types = types;
+    _.each(userModels, (userModel) => {
+      const user = _.find(users, { id: userModel.id });
+      userModel.hasPassword = user && user.password ? true : false;
     });
     return userModels;
-  }
-
-  public _getUsersTypes(): ISelectOption[] {
-    const usersTypes = _.chain(USER_PROVIDER_TYPE_NAME_ENUM)
-      .keys()
-      .map((key) => ({ name: USER_PROVIDER_TYPE_NAME_ENUM[key], value: key }))
-      .value();
-    return usersTypes;
   }
 
   public async _getUsersAndCount(queries: QueryUserAndCountModel): Promise<UserAndCountModel> {
@@ -166,29 +164,45 @@ export class UserService {
   }
 
   public async _createUser(createdUserModel: CreatedUserModel): Promise<UserModel> {
-    const password = createdUserModel.password
-      ? this.cryptoUserService.encodePassword(createdUserModel.password)
-      : undefined;
-    const model = this.userRepositoryService.merge(createdUserModel, { password });
+    const providerModels = createdUserModel.providers ? createdUserModel.providers : [];
+    createdUserModel.providers = undefined;
+    const model = this.userRepositoryService.merge(createdUserModel);
     const user = await this.userRepositoryService.insert(model);
+    await this.updateUserProviders(user.id, providerModels);
     const userModel = this.mapper(user);
     return userModel;
   }
 
   public async _updateUserById(id: number, updatedUserModel: UpdatedUserModel): Promise<UserModel> {
+    const providerModels = updatedUserModel.providers ? updatedUserModel.providers : [];
+    updatedUserModel.providers = undefined;
     const user = await this.userRepositoryService.update(id, updatedUserModel);
     if (!user) {
       throw new NotFoundException(`Not found system user by id "${id}"!`);
     }
+    await this.updateUserProviders(id, providerModels);
     const userModel = this.mapper(user);
     return userModel;
   }
 
-  public async _replacePassword(
+  public async _createUserPassword(
     id: number,
-    password: string,
-    newPassword: string,
+    createUserPasswordModel: CreateUserPasswordModel,
   ): Promise<UserModel> {
+    const { password } = createUserPasswordModel;
+    const encodePassword = this.cryptoUserService.encodePassword(password);
+    const updatedUser = await this.userRepositoryService.update(id, {
+      password: encodePassword,
+    });
+    const userModel = this.mapper(updatedUser!);
+    return userModel;
+  }
+
+  public async _replaceUserPassword(
+    id: number,
+    replaceUserPasswordModel: ReplaceUserPasswordModel,
+  ): Promise<UserModel> {
+    const { password, newPassword } = replaceUserPasswordModel;
     const encodePassword = this.cryptoUserService.encodePassword(password);
     const user = await this.userRepositoryService.findOne(id, { select: ['password'] });
     if (!user) {

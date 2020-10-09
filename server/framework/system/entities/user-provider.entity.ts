@@ -9,14 +9,14 @@ export class UserProviderEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
+  @Column('int')
+  public userId: number;
+
   @Column('varchar')
   public type: USER_PROVIDER_TYPE_ENUM;
 
   @Column('varchar')
   public key: string;
-
-  @Column('int')
-  public userId: number;
 
   @JoinColumn({ name: 'userId' })
   @ManyToOne(() => UserEntity)

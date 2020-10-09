@@ -1,7 +1,8 @@
 import { AuditLog } from '@bravo/core';
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { RoleEntity } from './role.entity';
+import { UserProviderEntity } from './user-provider.entity';
 
 @Entity({ schema: 'system', name: 'users' })
 @AuditLog()
@@ -33,8 +34,11 @@ export class UserEntity extends BaseEntity {
   @Column('nvarchar', { nullable: true, length: 500 })
   public comment: string | null;
 
+  @ManyToOne(() => UserProviderEntity, (userProvider) => userProvider.user)
+  public providers?: UserProviderEntity[];
+
   @JoinTable({
-    name: 'user-role-mapping',
+    name: 'user-role-mappings',
     schema: 'system',
     joinColumn: { name: 'userId' },
     inverseJoinColumn: { name: 'roleId' },
