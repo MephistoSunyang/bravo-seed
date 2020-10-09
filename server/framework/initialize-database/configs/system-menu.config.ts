@@ -1,6 +1,7 @@
-import { ISystemMenuConfig } from '../interfaces';
+import { DeepPartial } from 'typeorm';
+import { MenuEntity } from '../../system';
 
-export const SYSTEM_MENU_CONFIG: ISystemMenuConfig[] = [
+export const SYSTEM_MENU_CONFIG: DeepPartial<MenuEntity>[] = [
   {
     group: 'systemAdmin',
     parentId: 0,
