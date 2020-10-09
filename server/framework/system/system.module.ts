@@ -18,6 +18,7 @@ import {
   RoleClaimEntity,
   RoleEntity,
   RoleGroupEntity,
+  UserClaimEntity,
   UserEntity,
   UserProviderEntity,
 } from './entities';
@@ -42,6 +43,7 @@ const entities = [
   RoleClaimEntity,
   RoleGroupEntity,
   RoleEntity,
+  UserClaimEntity,
   UserProviderEntity,
   UserEntity,
 ];

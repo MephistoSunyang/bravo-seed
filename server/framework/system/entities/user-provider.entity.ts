@@ -1,10 +1,13 @@
 import { AuditLog } from '@bravo/core';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { USER_PROVIDER_TYPE_ENUM } from '../enums';
 import { UserEntity } from './user.entity';
 
-@Entity({ schema: 'system', name: 'user-providers' })
 @AuditLog()
+@Index('SystemUserProviderUserIdIndex', ['userId'])
+@Index('SystemUserProviderTypeIndex', ['type'])
+@Index('SystemUserProviderKeyIndex', ['key'])
+@Entity({ schema: 'system', name: 'user-providers' })
 export class UserProviderEntity {
   @PrimaryGeneratedColumn()
   public id: number;

@@ -1,10 +1,13 @@
 import { AuditLog } from '@bravo/core';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ROLE_CLAIM_TYPE_ENUM } from '../enums';
 import { RoleEntity } from './role.entity';
 
-@Entity({ schema: 'system', name: 'role-claims' })
 @AuditLog()
+@Index('SystemRoleClaimRoleIdIndex', ['roleId'])
+@Index('SystemRoleClaimTypeIndex', ['type'])
+@Index('SystemRoleClaimKeyIndex', ['key'])
+@Entity({ schema: 'system', name: 'role-claims' })
 export class RoleClaimEntity {
   @PrimaryGeneratedColumn()
   public id: number;

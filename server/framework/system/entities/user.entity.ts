@@ -1,11 +1,14 @@
 import { AuditLog } from '@bravo/core';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import { Column, Entity, Index, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { RoleEntity } from './role.entity';
 import { UserProviderEntity } from './user-provider.entity';
 
-@Entity({ schema: 'system', name: 'users' })
 @AuditLog()
+@Index('SystemUserUsernameIndex', ['username'])
+@Index('SystemUserPhoneIndex', ['phone'])
+@Index('SystemUserEmailIndex', ['email'])
+@Entity({ schema: 'system', name: 'users' })
 export class UserEntity extends BaseEntity {
   @Column('varchar')
   public username: string;

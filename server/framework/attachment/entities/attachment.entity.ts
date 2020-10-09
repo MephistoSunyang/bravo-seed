@@ -1,11 +1,12 @@
 import { AuditLog, getCurrentUserId } from '@bravo/core';
 import _ from 'lodash';
 import moment from 'moment';
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { ATTACHMENT_STORAGE_TYPE_ENUM } from '../enums';
 
-@Entity({ schema: 'system', name: 'attachments' })
 @AuditLog()
+@Index('SystemAttachmentPathIndex', ['path'], { unique: true })
+@Entity({ schema: 'system', name: 'attachments' })
 export class AttachmentEntity {
   @PrimaryGeneratedColumn()
   public id: number;

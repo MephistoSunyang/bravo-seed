@@ -1,10 +1,11 @@
 import { AuditLog } from '@bravo/core';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { CONFIG_CONTENT_TYPE_ENUM } from '../enums';
 
-@Entity({ schema: 'system', name: 'configs' })
 @AuditLog()
+@Index('SystemConfigCodeIndex', ['code'])
+@Entity({ schema: 'system', name: 'configs' })
 export class ConfigEntity extends BaseEntity {
   @Column('varchar')
   public code: string;
