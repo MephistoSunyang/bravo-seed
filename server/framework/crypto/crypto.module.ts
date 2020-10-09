@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
-import { CryptoConfigService, CryptoUserService } from './services';
+import { Global, Module } from '@nestjs/common';
+import { CryptoConfigService, CryptoPassportService, CryptoUserService } from './services';
 
-const services = [CryptoConfigService, CryptoUserService];
+const services = [CryptoConfigService, CryptoPassportService, CryptoUserService];
 const providers = [...services];
 
+@Global()
 @Module({
   providers,
   exports: [...providers],

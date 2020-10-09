@@ -1,4 +1,4 @@
-import { InjectRepositoryService, RepositoryService } from '@bravo/core';
+import { InjectRepositoryService, IRequest, RepositoryService } from '@bravo/core';
 import { Inject, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
@@ -18,7 +18,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super(options);
   }
 
-  public async validate(username: string, password: string): Promise<UserEntity> {
+  public async validate(request: IRequest, username: string, password: string): Promise<number> {
     const encodePassword = this.cryptoUserService.encodePassword(password);
     const user = await this.userRepositoryService.findOne({ username, password: encodePassword });
     if (!user) {
@@ -26,6 +26,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         `Not found user by username "${username}" or password invalid!`,
       );
     }
-    return user;
+    return user.id;
   }
 }

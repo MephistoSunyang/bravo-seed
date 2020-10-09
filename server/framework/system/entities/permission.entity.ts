@@ -1,9 +1,10 @@
 import { AuditLog } from '@bravo/core';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 
-@Entity({ schema: 'system', name: 'permissions' })
 @AuditLog()
+@Index('SystemPermissionCodeIndex', ['code'])
+@Entity({ schema: 'system', name: 'permissions' })
 export class PermissionEntity extends BaseEntity {
   @Column('varchar')
   public code: string;

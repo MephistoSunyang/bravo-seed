@@ -5,10 +5,8 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
-  CreateDateColumn,
   DeleteColumn,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
   VersionColumn,
 } from 'typeorm';
 
@@ -19,13 +17,13 @@ export abstract class BaseEntity {
   @Column('nvarchar', { nullable: true })
   public createdUserId: string | null;
 
-  @CreateDateColumn()
+  @Column('datetime2')
   public createdDate: Date;
 
   @Column('nvarchar', { nullable: true })
   public modifiedUserId: string | null;
 
-  @UpdateDateColumn()
+  @Column('datetime2')
   public modifiedDate: Date;
 
   @DeleteColumn({ default: false })
@@ -41,6 +39,7 @@ export abstract class BaseEntity {
       this.createdUserId = userId ? _.toString(userId) : null;
     }
     this.createdDate = moment().utc().toDate();
+    this.modifiedDate = moment().utc().toDate();
   }
 
   @BeforeUpdate()

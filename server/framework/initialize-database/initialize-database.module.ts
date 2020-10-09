@@ -1,19 +1,16 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { CryptoModule } from '../crypto';
-import { DatabaseService, SystemModuleService } from './services';
+import { InitializeService, InitializeSystemModuleService } from './services';
 
-const modules = [CryptoModule];
-const services = [DatabaseService, SystemModuleService];
+const services = [InitializeService, InitializeSystemModuleService];
 const providers = [...services];
 
 @Module({
-  imports: [...modules],
   providers,
 })
 export class InitializeDatabaseModule implements OnModuleInit {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly initializeService: InitializeService) {}
 
   public onModuleInit(): void {
-    this.databaseService.initialize();
+    this.initializeService.database();
   }
 }

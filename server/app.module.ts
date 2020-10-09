@@ -8,11 +8,20 @@ import {
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { BusinessModule } from './business';
 import {
+  CACHE_CONFIG,
   DATABASE_CONFIG,
+  PASSPORT_AZURE_STRATEGY_CONFIG,
   PASSPORT_JWT_STRATEGY_CONFIG,
   PASSPORT_LOCAL_STRATEGY_CONFIG,
 } from './configs';
-import { FrameworkModule, PassportLocalModule, SetJwtUserIdMiddleware } from './framework';
+import {
+  CacheModule,
+  FrameworkModule,
+  PassportAzureModule,
+  PassportJwtModule,
+  PassportLocalModule,
+  SetJwtUserIdMiddleware,
+} from './framework';
 import { PluginModule } from './plugin';
 
 const modules = [
@@ -21,7 +30,10 @@ const modules = [
   PluginModule,
   BusinessModule,
   DataBaseModule.forRoot(DATABASE_CONFIG),
-  PassportLocalModule.forRoot(PASSPORT_LOCAL_STRATEGY_CONFIG, PASSPORT_JWT_STRATEGY_CONFIG),
+  CacheModule.forRoot(CACHE_CONFIG),
+  PassportJwtModule.forRoot(PASSPORT_JWT_STRATEGY_CONFIG),
+  PassportLocalModule.forRoot(PASSPORT_LOCAL_STRATEGY_CONFIG),
+  PassportAzureModule.forRoot(PASSPORT_AZURE_STRATEGY_CONFIG),
 ];
 
 @Module({

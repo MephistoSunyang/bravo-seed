@@ -1,39 +1,39 @@
-import { IRequest } from '@bravo/core';
+import { DisableExceptionLog, IRequest } from '@bravo/core';
 import {
   Controller,
-  Get,
   Post,
   Request,
   UnauthorizedException,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import _ from 'lodash';
+import { IToken, JWT_PAYLOAD_TYPE_ENUM, PassportJwtService } from '../../passport-jwt';
 import { ValidatorPipe } from '../../validator';
-import { LoginModel } from '../models';
+import { CreateTokenModel } from '../models';
 
 @ApiTags('auth')
 @Controller('auth/v1')
 @UsePipes(ValidatorPipe)
 export class PassportLocalController {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly passportJwtService: PassportJwtService) {}
 
-  @Get('current/token')
-  public getToken(@Request() request: IRequest): string | null {
-    return request.user ? this.jwtService.sign(request.user) : null;
-  }
-
-  @ApiBody({ type: LoginModel })
-  @UseGuards(AuthGuard('local'))
+  @ApiBody({ type: CreateTokenModel })
   @Post('token')
-  public async login(@Request() request: IRequest): Promise<string> {
-    const { user } = request;
-    if (!user) {
-      throw new UnauthorizedException(`Not found user!`);
+  @UseGuards(AuthGuard('local'))
+  @DisableExceptionLog()
+  public async login(@Request() request: IRequest): Promise<IToken> {
+    const userId = request.user ? _.toNumber(request.user) : null;
+    if (!userId) {
+      throw new UnauthorizedException(`Not found userId!`);
     }
-    const token = this.jwtService.sign({ id: user['id'] });
+    const token = this.passportJwtService.generateTokenByUserId(
+      userId,
+      JWT_PAYLOAD_TYPE_ENUM.LOCAL,
+      _.toString(userId),
+    );
     return token;
   }
 }

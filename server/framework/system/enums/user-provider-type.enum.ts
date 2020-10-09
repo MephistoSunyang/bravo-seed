@@ -1,1 +1,3 @@
-export enum USER_PROVIDER_TYPE_ENUM {}
+export enum USER_PROVIDER_TYPE_ENUM {
+  AZURE = 'AZURE',
+}

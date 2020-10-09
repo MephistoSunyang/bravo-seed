@@ -52,6 +52,7 @@ let DataBaseModule = (() => {
                     const schemas = lodash_1.default.chain(entityMetadatas)
                         .map('schema')
                         .compact()
+                        .uniq()
                         .difference(databaseSchemas)
                         .value();
                     yield Promise.all(schemas.map((schema) => queryRunner.createSchema(schema)));

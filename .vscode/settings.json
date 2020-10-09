@@ -2,5 +2,8 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.tslint": true
-  }
+  },
+  "debug.node.autoAttach": "on",
+  "debug.javascript.usePreviewAutoAttach": false,
+  "debug.javascript.warnOnLongPrediction": false
 }

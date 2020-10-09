@@ -1,10 +1,11 @@
 import { AuditLog } from '@bravo/core';
-import { Column, Entity, ManyToMany } from 'typeorm';
+import { Column, Entity, Index, ManyToMany } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { UserEntity } from './user.entity';
 
-@Entity({ schema: 'system', name: 'roles' })
 @AuditLog()
+@Index('SystemRoleCodeIndex', ['code'])
+@Entity({ schema: 'system', name: 'roles' })
 export class RoleEntity extends BaseEntity {
   @Column('int', { default: 0 })
   public roleGroupId: number;

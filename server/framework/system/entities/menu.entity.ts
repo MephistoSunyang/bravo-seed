@@ -2,8 +2,8 @@ import { AuditLog } from '@bravo/core';
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 
-@Entity({ schema: 'system', name: 'menus' })
 @AuditLog()
+@Entity({ schema: 'system', name: 'menus' })
 export class MenuEntity extends BaseEntity {
   @Column('varchar')
   public group: string;

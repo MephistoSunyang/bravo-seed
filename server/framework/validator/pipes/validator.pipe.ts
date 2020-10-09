@@ -42,7 +42,7 @@ export class ValidatorPipe implements PipeTransform {
       groups,
     });
     if (errors.length > 0) {
-      Logger.error(this.getErrorMessage(errors), 'ValidatorModule ValidatorPipe Error');
+      Logger.error(this.getErrorMessage(errors), 'ValidatorModule ValidatorPipe Exception');
       throw new BadRequestException('validation failed!');
     }
     return data;

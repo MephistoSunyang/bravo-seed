@@ -1,10 +1,8 @@
 import { RepositoryModule } from '@bravo/core';
-import { Module } from '@nestjs/common';
-import { CryptoModule } from '../crypto';
+import { Global, Module, OnModuleInit } from '@nestjs/common';
 import {
   ActionController,
   ConfigController,
-  FeatureController,
   LogController,
   MenuController,
   PermissionController,
@@ -15,13 +13,12 @@ import {
 import {
   ActionEntity,
   ConfigEntity,
-  FeatureClaimEntity,
-  FeatureEntity,
   MenuEntity,
   PermissionEntity,
   RoleClaimEntity,
   RoleEntity,
   RoleGroupEntity,
+  UserClaimEntity,
   UserEntity,
   UserProviderEntity,
 } from './entities';
@@ -29,7 +26,6 @@ import {
   ActionService,
   ClaimService,
   ConfigService,
-  FeatureService,
   LogService,
   MenuService,
   ModelService,
@@ -42,21 +38,19 @@ import {
 const entities = [
   ActionEntity,
   ConfigEntity,
-  FeatureClaimEntity,
-  FeatureEntity,
   MenuEntity,
   PermissionEntity,
   RoleClaimEntity,
   RoleGroupEntity,
   RoleEntity,
+  UserClaimEntity,
   UserProviderEntity,
   UserEntity,
 ];
-const modules = [RepositoryModule.forFeature(entities), CryptoModule];
+const modules = [RepositoryModule.forFeature(entities)];
 const controllers = [
   ActionController,
   ConfigController,
-  FeatureController,
   LogController,
   MenuController,
   PermissionController,
@@ -68,7 +62,6 @@ const services = [
   ActionService,
   ClaimService,
   ConfigService,
-  FeatureService,
   LogService,
   MenuService,
   ModelService,
@@ -79,10 +72,17 @@ const services = [
 ];
 const providers = [...services];
 
+@Global()
 @Module({
   imports: [...modules],
   controllers,
   providers,
   exports: [...providers],
 })
-export class SystemModule {}
+export class SystemModule implements OnModuleInit {
+  constructor(private readonly configService: ConfigService) {}
+
+  public async onModuleInit(): Promise<void> {
+    await this.configService.initializeConfigCaches();
+  }
+}

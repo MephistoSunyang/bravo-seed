@@ -1,19 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import {
-  IsArray,
-  IsBoolean,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Length,
-} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { ExistedValidator, UniqueValidator, VALIDATOR_GROUP_ENUM } from '../../../validator';
 import { BaseModel } from '../../base.model';
 import { RoleEntity, UserEntity } from '../../entities';
-import { USER_PROVIDER_TYPE_ENUM } from '../../enums';
 import { RoleModel } from '../role';
+import { UserProviderModel } from './user-provider.model';
 
 export class UserModel extends BaseModel {
   @ApiProperty()
@@ -50,6 +42,7 @@ export class UserModel extends BaseModel {
   @ApiProperty({ default: false, example: false })
   @Expose()
   @IsBoolean()
+  @IsOptional()
   public phoneConfirmed: boolean;
 
   @ApiProperty({ type: 'string | null', example: null })
@@ -62,7 +55,27 @@ export class UserModel extends BaseModel {
   @ApiProperty({ default: false, example: false })
   @Expose()
   @IsBoolean()
+  @IsOptional()
   public emailConfirmed: boolean;
+
+  @ApiProperty({ default: false, example: false })
+  @Expose()
+  @IsBoolean()
+  @IsOptional()
+  public hasPassword: boolean;
+
+  @ApiProperty({ type: 'string | null', example: null })
+  @Expose()
+  @IsString()
+  @Length(0, 500)
+  @IsOptional()
+  public comment: string | null;
+
+  @ApiProperty({ type: () => [UserProviderModel] })
+  @Expose()
+  @IsOptional()
+  @Type(() => UserProviderModel)
+  public providers?: UserProviderModel[];
 
   @ApiProperty({ type: () => [RoleModel] })
   @Expose()
@@ -72,18 +85,4 @@ export class UserModel extends BaseModel {
   })
   @Type(() => RoleModel)
   public roles?: RoleModel[];
-
-  @ApiProperty()
-  @Expose()
-  @IsArray()
-  @IsOptional()
-  @IsEnum(USER_PROVIDER_TYPE_ENUM)
-  public types?: USER_PROVIDER_TYPE_ENUM[];
-
-  @ApiProperty({ type: 'string | null', example: null })
-  @Expose()
-  @IsString()
-  @Length(0, 500)
-  @IsOptional()
-  public comment: string | null;
 }

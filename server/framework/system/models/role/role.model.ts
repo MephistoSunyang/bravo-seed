@@ -3,8 +3,10 @@ import { Expose, Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsOptional, IsString, Length, Min } from 'class-validator';
 import { ExistedValidator, UniqueValidator, VALIDATOR_GROUP_ENUM } from '../../../validator';
 import { BaseModel } from '../../base.model';
-import { FeatureEntity, RoleEntity, RoleGroupEntity } from '../../entities';
-import { FeatureModel } from '../feature';
+import { RoleEntity, RoleGroupEntity } from '../../entities';
+import { ActionModel } from '../action';
+import { MenuModel } from '../menu';
+import { PermissionModel } from '../permission';
 
 export class RoleModel extends BaseModel {
   @ApiProperty({ default: 0, example: 0 })
@@ -33,19 +35,37 @@ export class RoleModel extends BaseModel {
   @IsNotEmpty()
   public name: string;
 
-  @ApiProperty({ type: () => [FeatureModel] })
-  @Expose()
-  @IsOptional()
-  @ExistedValidator(FeatureEntity, {
-    groups: [VALIDATOR_GROUP_ENUM.CREATED, VALIDATOR_GROUP_ENUM.UPDATED],
-  })
-  @Type(() => FeatureModel)
-  public features?: FeatureModel[];
-
   @ApiProperty({ type: 'string | null', example: null })
   @Expose()
   @IsString()
   @Length(0, 500)
   @IsOptional()
   public comment: string | null;
+
+  @ApiProperty({ type: () => [MenuModel] })
+  @Expose()
+  @IsOptional()
+  @ExistedValidator(MenuModel, {
+    groups: [VALIDATOR_GROUP_ENUM.CREATED, VALIDATOR_GROUP_ENUM.UPDATED],
+  })
+  @Type(() => MenuModel)
+  public menus?: MenuModel[];
+
+  @ApiProperty({ type: () => [PermissionModel] })
+  @Expose()
+  @IsOptional()
+  @ExistedValidator(PermissionModel, {
+    groups: [VALIDATOR_GROUP_ENUM.CREATED, VALIDATOR_GROUP_ENUM.UPDATED],
+  })
+  @Type(() => PermissionModel)
+  public permissions?: PermissionModel[];
+
+  @ApiProperty({ type: () => [ActionModel] })
+  @Expose()
+  @IsOptional()
+  @ExistedValidator(ActionModel, {
+    groups: [VALIDATOR_GROUP_ENUM.CREATED, VALIDATOR_GROUP_ENUM.UPDATED],
+  })
+  @Type(() => ActionModel)
+  public actions?: ActionModel[];
 }

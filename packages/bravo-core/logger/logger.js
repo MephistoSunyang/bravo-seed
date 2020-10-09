@@ -12,16 +12,16 @@ class Logger extends common_1.Logger {
         super.debug(message, context);
     }
     static log(message, context = 'Nest Application Log') {
-        logger_utils_1.logger(`[${context}]`).info(message);
+        logger_utils_1.logger(`[${context} Log]`).info(message);
         super.log(message, context);
     }
     static warn(message, context = 'Nest Application Warn') {
-        logger_utils_1.logger(`[${context}]`).warn(message);
+        logger_utils_1.logger(`[${context} Warn]`).warn(message);
         super.warn(message, context);
     }
     static error(message, context = 'Nest Application Error', trace = '') {
         const errorMessage = message instanceof Error ? shared_1.getErrorMessage(message) : message;
-        logger_utils_1.logger(`[${context}]`).error(errorMessage, trace);
+        logger_utils_1.logger(`[${context} Error]`).error(errorMessage, trace);
         super.error(errorMessage, trace, context);
     }
 }

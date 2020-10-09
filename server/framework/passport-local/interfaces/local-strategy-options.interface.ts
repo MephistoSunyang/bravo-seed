@@ -1,3 +1,3 @@
-import { IStrategyOptions } from 'passport-local';
+import { IStrategyOptionsWithRequest } from 'passport-local';
 
-export interface ILocalStrategyOptions extends IStrategyOptions {}
+export interface ILocalStrategyOptions extends IStrategyOptionsWithRequest {}
