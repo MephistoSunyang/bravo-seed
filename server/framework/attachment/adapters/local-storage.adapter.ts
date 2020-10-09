@@ -7,7 +7,7 @@ import path from 'path';
 import { v1 as uuid } from 'uuid';
 import { AttachmentStorageContainer } from '../containers';
 import { AttachmentEntity } from '../entities';
-import { ATTACHMENT_STORAGE_TYPE_ENUM } from '../enums';
+import { ATTACHMENT_STORAGE_TYPE_ENUM, DOWNLOAD_ATTACHMENT_TYPE_ENUM } from '../enums';
 import { IAttachmentStorageAdapter } from '../interfaces';
 import { AttachmentBackupService } from '../services/attachment-backup.service';
 
@@ -30,19 +30,24 @@ export class LocalStorageAdapter implements IAttachmentStorageAdapter {
     if (!deletedAttachment) {
       throw new NotFoundException(`Not found attachment by id "${attachment.id}"!`);
     }
-    fs.unlinkSync(getRootPath('resources', attachment.path));
-    fs.rmdirSync(getRootPath('resources', attachment.folderName));
+    fs.unlinkSync(getRootPath(attachment.path));
+    fs.rmdirSync(getRootPath(attachment.folderName));
     return deletedAttachment;
   }
 
-  public async downAttachment(attachment: AttachmentEntity): Promise<string> {
-    await this.attachmentBackupService.generateAttachmentBackup(attachment);
-    return attachment.path;
+  public async downAttachment(
+    attachment: AttachmentEntity,
+  ): Promise<[DOWNLOAD_ATTACHMENT_TYPE_ENUM, string]> {
+    const path = getRootPath(attachment.path);
+    if (!fs.existsSync(path)) {
+      await this.attachmentBackupService.generateAttachmentBackup(attachment);
+    }
+    return [DOWNLOAD_ATTACHMENT_TYPE_ENUM.FILE, path];
   }
 
   public async uploadAttachments(files: IFile[]): Promise<AttachmentEntity[]> {
     const dateFolder = moment().format('YYYY-MM-DD');
-    const dateFolderPath = getRootPath('resources', dateFolder);
+    const dateFolderPath = getRootPath(dateFolder);
     if (!fs.existsSync(dateFolderPath)) {
       fs.mkdirSync(dateFolderPath);
     }
@@ -50,14 +55,14 @@ export class LocalStorageAdapter implements IAttachmentStorageAdapter {
       const uuidFolder = uuid();
       const fileName = file.originalname;
       fs.mkdirSync(path.join(dateFolderPath, uuidFolder));
-      const folderName = `${dateFolder}/${uuidFolder}`;
+      const folderName = `/resources/${dateFolder}/${uuidFolder}`;
       const attachmentModel = this.attachmentRepository.repository.create({
         name: fileName,
         encoding: file.encoding,
         originalName: fileName,
         mimeType: file.mimetype,
         size: file.size,
-        path: `${dateFolder}/${uuidFolder}/${fileName}`,
+        path: `${folderName}/${fileName}`,
         fileName,
         folderName,
         extName: path.extname(fileName),

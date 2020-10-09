@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODE_ENUM, IFile, IResponse } from '@bravo/core';
+import { HTTP_STATUS_CODE_ENUM, IFile, IRequest, IResponse } from '@bravo/core';
 import {
   Body,
   Controller,
@@ -9,12 +9,14 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Request,
   Response,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   ActionGuard,
@@ -24,7 +26,7 @@ import {
   PermissionGuard,
   Permissions,
 } from '../../system';
-import { ATTACHMENT_STORAGE_TYPE_ENUM } from '../enums';
+import { ATTACHMENT_STORAGE_TYPE_ENUM, DOWNLOAD_ATTACHMENT_TYPE_ENUM } from '../enums';
 import { AttachmentAndCountModel, AttachmentModel, QueryAttachmentAndCountModel } from '../models';
 import { AttachmentService } from '../services';
 
@@ -74,29 +76,31 @@ export class AttachmentController {
 
   @DisablePermissionGuard()
   @DisableActionGuard()
-  @Get('resources/:path')
+  @Get('resources/*')
   public async downloadAttachmentByPath(
-    @Param('path') path: string,
+    @Request() request: IRequest,
     @Response() response: IResponse,
   ) {
-    const url = await this.attachmentService._downloadAttachmentByPath(path);
-    response.send(url);
+    const [type, path] = await this.attachmentService._downloadAttachmentByPath(
+      request.originalUrl,
+    );
+    type === DOWNLOAD_ATTACHMENT_TYPE_ENUM.FILE ? response.sendFile(path) : response.redirect(path);
   }
 
   @Post('api/v1/attachments')
-  @UseInterceptors(FileInterceptor('files'))
+  @UseInterceptors(FileInterceptor('file'))
   public async createAttachment(
-    @UploadedFile() files: IFile[],
+    @UploadedFile() file: IFile,
     @Body('storageType') storageType?: ATTACHMENT_STORAGE_TYPE_ENUM,
   ): Promise<AttachmentModel> {
-    const attachment = await this.attachmentService._uploadAttachment(files[0], storageType);
+    const attachment = await this.attachmentService._uploadAttachment(file, storageType);
     return attachment;
   }
 
   @Post('api/v1/attachments/bulk')
-  @UseInterceptors(FileInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('files'))
   public async createAttachments(
-    @UploadedFile() files: IFile[],
+    @UploadedFiles() files: IFile[],
     @Body('storageType') storageType?: ATTACHMENT_STORAGE_TYPE_ENUM,
   ): Promise<AttachmentModel[]> {
     const attachments = await this.attachmentService._uploadAttachments(files, storageType);

@@ -66,7 +66,6 @@ const bootstrap = async () => {
 
     app.useStaticAssets(getPath(__dirname, 'client'));
     app.useStaticAssets(getRootPath('statics'));
-    app.useStaticAssets(getRootPath('resources'), { prefix: '/resources' });
 
     app.useGlobalFilters(
       app.select(ExceptionModule).get(ErrorExceptionFilter),

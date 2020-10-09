@@ -1,0 +1,4 @@
+export enum DOWNLOAD_ATTACHMENT_TYPE_ENUM {
+  FILE = 'FILE',
+  URL = 'URL',
+}

@@ -26,7 +26,20 @@ export class AttachmentBackupService {
         `Not found attachmentContent by attachmentId "${attachment.id}"!`,
       );
     }
-    fs.writeFileSync(getRootPath('resources', attachment.path), attachmentContent.content);
+    const folderNames = attachment.folderName.split('/').slice(1);
+    const paths = _.map(_.times(folderNames.length, Number), (index) =>
+      _.chain(_.times(++index, Number))
+        .map((value) => folderNames[value])
+        .join('/')
+        .value(),
+    );
+    _.each(paths, (path) => {
+      const folderPath = getRootPath(path);
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+      }
+    });
+    fs.writeFileSync(getRootPath(attachment.path), attachmentContent.content);
   }
 
   public createAttachmentBacks(attachments: AttachmentEntity[], files: IFile[]) {

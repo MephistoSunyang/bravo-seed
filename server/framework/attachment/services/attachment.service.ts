@@ -7,7 +7,11 @@ import { FindConditions, Like } from 'typeorm';
 import { ISelectOption, ModelService } from '../../system';
 import { AttachmentStorageContainer } from '../containers';
 import { AttachmentEntity } from '../entities';
-import { ATTACHMENT_STORAGE_TYPE_ENUM, ATTACHMENT_STORAGE_TYPE_NAME_ENUM } from '../enums';
+import {
+  ATTACHMENT_STORAGE_TYPE_ENUM,
+  ATTACHMENT_STORAGE_TYPE_NAME_ENUM,
+  DOWNLOAD_ATTACHMENT_TYPE_ENUM,
+} from '../enums';
 import { IAttachmentStorageAdapter } from '../interfaces';
 import { AttachmentModel, QueryAttachmentAndCountModel, QueryAttachmentModel } from '../models';
 
@@ -108,18 +112,20 @@ export class AttachmentService {
     return attachmentModel;
   }
 
-  public async _downloadAttachmentByPath(path: string): Promise<string> {
+  public async _downloadAttachmentByPath(
+    path: string,
+  ): Promise<[DOWNLOAD_ATTACHMENT_TYPE_ENUM, string]> {
     if (fs.existsSync(path)) {
       await this.updateLastDownloadDateByPath(path);
-      return path;
+      return [DOWNLOAD_ATTACHMENT_TYPE_ENUM.FILE, path];
     }
     const attachment = await this.attachmentRepository.findOne({ path });
     if (!attachment) {
       throw new NotFoundException(`Not found attachment by path "${path}"!`);
     }
-    const url = await this.getAdapter(attachment.storageType).downAttachment(attachment);
+    const result = await this.getAdapter(attachment.storageType).downAttachment(attachment);
     await this.updateLastDownloadDateByPath(path);
-    return url;
+    return result;
   }
 
   public async _uploadAttachment(
