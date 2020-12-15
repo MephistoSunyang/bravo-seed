@@ -38,8 +38,8 @@ export abstract class BaseEntity {
     if (!this.createdUserId) {
       this.createdUserId = userId ? _.toString(userId) : null;
     }
-    this.createdDate = moment().utc().toDate();
-    this.modifiedDate = moment().utc().toDate();
+    this.createdDate = moment().utc(true).toDate();
+    this.modifiedDate = moment().utc(true).toDate();
   }
 
   @BeforeUpdate()
@@ -48,6 +48,6 @@ export abstract class BaseEntity {
     if (!this.modifiedUserId) {
       this.modifiedUserId = userId ? _.toString(userId) : null;
     }
-    this.modifiedDate = moment().utc().toDate();
+    this.modifiedDate = moment().utc(true).toDate();
   }
 }

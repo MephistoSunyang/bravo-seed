@@ -7,6 +7,7 @@ dotenv.config();
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import history from 'connect-history-api-fallback-exclusions';
+import timeout from 'connect-timeout';
 import cookie from 'cookie-parser';
 import httpContext from 'express-http-context';
 import rateLimit from 'express-rate-limit';
@@ -34,17 +35,26 @@ import { AppModule } from './app.module';
 
 const bootstrap = async () => {
   try {
+    const {
+      PORT,
+      COOKIE_SECRET,
+      SESSION_SECRET,
+      HISTORY_EXCLUSIONS,
+      BODY_LIMIT,
+      TIMEOUT_PERIOD,
+      RATE_LIMIT_MAX,
+    } = process.env;
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
-    const port = process.env.PORT ? _.toNumber(process.env.PORT) : 8080;
-    const cookieSecret = _.toString(process.env.COOKIE_SECRET);
-    const sessionSecret = _.toString(process.env.SESSION_SECRET);
-    const rateLimitMax = process.env.PORT ? _.toNumber(process.env.RATE_LIMIT_MAX) : 1000;
-    const historyExclusions = _.toString(process.env.HISTORY_EXCLUSIONS).split(',');
+    const port = PORT ? _.toNumber(PORT) : 8080;
+    const cookieSecret = _.toString(COOKIE_SECRET);
+    const sessionSecret = _.toString(SESSION_SECRET);
+    const historyExclusions = _.toString(HISTORY_EXCLUSIONS).split(',');
+    const bodyLimit = BODY_LIMIT ? _.toString(BODY_LIMIT) : '2mb';
+    const timeoutPeriod = TIMEOUT_PERIOD ? _.toString(TIMEOUT_PERIOD) : '5s';
+    const rateLimitMax = RATE_LIMIT_MAX ? _.toNumber(RATE_LIMIT_MAX) : 1000;
 
     app.set('trust proxy', true);
 
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(bodyParser.json());
     app.use(compression());
     app.use(cookie(cookieSecret));
     app.use(
@@ -53,10 +63,14 @@ const bootstrap = async () => {
         resave: false,
         saveUninitialized: true,
         cookie: {
+          httpOnly: true,
           secure: isLocal() ? false : true,
         },
       }),
     );
+    app.use(bodyParser.urlencoded({ limit: bodyLimit, extended: true }));
+    app.use(bodyParser.json());
+    app.use(timeout(timeoutPeriod));
     app.use(helmet());
     app.use(rateLimit({ max: rateLimitMax }));
     app.use(history({ exclusions: historyExclusions }));
