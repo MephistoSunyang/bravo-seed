@@ -59,7 +59,7 @@
     "uuid": "^8.2.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^7.2.0",
+    "@nestjs/cli": "^9.1.8",
     "@nestjs/schematics": "^7.0.0",
     "@types/compression": "^1.7.0",
     "@types/connect-history-api-fallback-exclusions": "^1.5.1",
